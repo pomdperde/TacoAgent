@@ -1,0 +1,269 @@
+{
+  "evaluation": "TacoAgent offline DeepEval performance suite",
+  "deepeval_version": "4.1.8",
+  "mode": "offline_scripted_model_real_tools",
+  "limitations": [
+    "OPENAI_API_KEY was not configured, so model intelligence and LLM-as-a-judge metrics were not measured.",
+    "Tool trajectories are scripted; real Workspace tools, safety checks, logging, and command execution are exercised."
+  ],
+  "summary": {
+    "cases": 15,
+    "passed": 15,
+    "pass_rate": 1.0,
+    "mean_latency_ms": 26.335,
+    "p95_latency_ms": 86.48,
+    "mean_tool_duration_ms": 20.457,
+    "metric_averages": {
+      "Tool Selection Accuracy": 1.0,
+      "Task Completion": 1.0,
+      "Workspace Safety": 1.0,
+      "Latency Budget": 1.0,
+      "Token Efficiency": 1.0
+    }
+  },
+  "cases": [
+    {
+      "name": "create_file_1",
+      "success": true,
+      "latency_ms": 14.902,
+      "total_tokens": 60,
+      "tools_called": [
+        "file_create"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "read_then_edit_1",
+      "success": true,
+      "latency_ms": 39.385,
+      "total_tokens": 85,
+      "tools_called": [
+        "file_read",
+        "file_edit"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "regex_search_1",
+      "success": true,
+      "latency_ms": 7.527,
+      "total_tokens": 60,
+      "tools_called": [
+        "regex_search"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "command_execution_1",
+      "success": true,
+      "latency_ms": 105.702,
+      "total_tokens": 60,
+      "tools_called": [
+        "command_run"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "workspace_escape_rejected_1",
+      "success": true,
+      "latency_ms": 4.588,
+      "total_tokens": 60,
+      "tools_called": [
+        "file_read"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "create_file_2",
+      "success": true,
+      "latency_ms": 7.437,
+      "total_tokens": 60,
+      "tools_called": [
+        "file_create"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "read_then_edit_2",
+      "success": true,
+      "latency_ms": 9.668,
+      "total_tokens": 85,
+      "tools_called": [
+        "file_read",
+        "file_edit"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "regex_search_2",
+      "success": true,
+      "latency_ms": 7.093,
+      "total_tokens": 60,
+      "tools_called": [
+        "regex_search"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "command_execution_2",
+      "success": true,
+      "latency_ms": 86.48,
+      "total_tokens": 60,
+      "tools_called": [
+        "command_run"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "workspace_escape_rejected_2",
+      "success": true,
+      "latency_ms": 4.523,
+      "total_tokens": 60,
+      "tools_called": [
+        "file_read"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "create_file_3",
+      "success": true,
+      "latency_ms": 6.534,
+      "total_tokens": 60,
+      "tools_called": [
+        "file_create"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "read_then_edit_3",
+      "success": true,
+      "latency_ms": 10.67,
+      "total_tokens": 85,
+      "tools_called": [
+        "file_read",
+        "file_edit"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "regex_search_3",
+      "success": true,
+      "latency_ms": 8.771,
+      "total_tokens": 60,
+      "tools_called": [
+        "regex_search"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "command_execution_3",
+      "success": true,
+      "latency_ms": 77.501,
+      "total_tokens": 60,
+      "tools_called": [
+        "command_run"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    },
+    {
+      "name": "workspace_escape_rejected_3",
+      "success": true,
+      "latency_ms": 4.25,
+      "total_tokens": 60,
+      "tools_called": [
+        "file_read"
+      ],
+      "metrics": {
+        "Tool Selection Accuracy": 1.0,
+        "Task Completion": 1.0,
+        "Workspace Safety": 1.0,
+        "Latency Budget": 1.0,
+        "Token Efficiency": 1.0
+      }
+    }
+  ]
+}
