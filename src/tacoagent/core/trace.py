@@ -80,6 +80,7 @@ class TraceRecorder:
         return self._record(
             {
                 "type": "run_start",
+                "workflow": self.workflow,
                 "task": self.task,
                 "task_goal": self.task,
                 "input_instruction": inputs.get("instruction") or self.task,
@@ -197,3 +198,44 @@ def _timeline_markdown(payload: dict[str, Any], timeline: list[dict[str, Any]]) 
         details = " · ".join(part for part in (str(node), str(status)) if part)
         lines.append(f"- `{event.get('timestamp', '')}` **{label}**{f' — {details}' if details else ''}")
     return "\n".join(lines) + "\n"
+
+
+class WorkflowEventRecorder:
+    """Adapt workflow events to a single per-run :class:`TraceRecorder`."""
+
+    def __init__(self, runtime, task: str = "") -> None:
+        self.trace = TraceRecorder(runtime, task=task)
+        self._trace_ended = False
+        self.latest_node: str | None = None
+
+    def start(self, workflow: str, task: str) -> None:
+        self.trace.start(
+            {"workflow": workflow, "task": task, "instruction": task}
+        )
+
+    def end(self, *, status: str, result: Any = None) -> dict[str, Any] | None:
+        if self._trace_ended:
+            return {}
+        self._trace_ended = True
+        return self.trace.end(
+            status=status,
+            latest_node=self.latest_node,
+            final_state=result,
+        )
+
+    def record(self, workflow: str, event: dict[str, Any]) -> dict[str, Any]:
+        """Record a custom event without creating a duplicate global event log."""
+        if event.get("node"):
+            self.latest_node = str(event["node"])
+        payload = self.trace.record_custom_event(
+            {"workflow": workflow, **event}
+        )
+        if event.get("type") == "node_output" and event.get("task_status") == "failed":
+            self.end(status="failed", result=event.get("return_result"))
+        return payload or {"workflow": workflow, **_safe(event)}
+
+    def record_graph_update(self, event: dict[str, Any]) -> None:
+        nodes = [str(node) for node in event if not str(node).startswith("__")]
+        if nodes:
+            self.latest_node = nodes[-1]
+        self.trace.record_graph_update(event)

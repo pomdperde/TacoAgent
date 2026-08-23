@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tacoagent.core.state import RuntimeState
+from tacoagent.core.runtime import RuntimeState
 from tacoagent.memory import (
     LATEST_TASK_SUMMARY_FILE,
     TASK_MEMORY_FILE,

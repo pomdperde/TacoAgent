@@ -7,7 +7,7 @@ from typing import Any, Callable
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
 from tacoagent.core.model import create_model
-from tacoagent.graph.nodes import build_todo_update_tool, build_tools
+from tacoagent.graph.node_utils import build_todo_update_tool, build_tools
 from tacoagent.graph.state import TacoGraphState, TodoItem
 from tacoagent.memory import build_layered_memory, format_layered_memory_for_prompt, memory_event
 from tacoagent.prompt.graph_prompt import CODE_AGENT_PROMPT

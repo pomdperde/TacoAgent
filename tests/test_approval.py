@@ -12,7 +12,7 @@ from tacoagent.core.approval import (
     classify_command_risk,
     normalize_approval_mode,
 )
-from tacoagent.core.state import RuntimeState
+from tacoagent.core.runtime import RuntimeState
 from tacoagent.core.workspace import WorkspaceSandbox
 from tacoagent.tools.command_run import CommandRunTool
 

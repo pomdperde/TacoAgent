@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tacoagent.core.state import RuntimeState
+from tacoagent.core.runtime import RuntimeState
 from tacoagent.core.trace import TraceRecorder, normalize_trace_mode
 from tacoagent.workflow.multi_agent_workflow import stream_multi_agent_workflow_events
 from tacoagent.workflow.react_workflow import stream_react_workflow_events
@@ -112,7 +112,7 @@ class TraceTests(unittest.TestCase):
 
     def test_multi_agent_workflow_trace(self) -> None:
         with tempfile.TemporaryDirectory() as directory, patch(
-            "tacoagent.workflow.multi_agent_workflow.planner_node",
+            "tacoagent.workflow.multi_agent_workflow.multi_agent_supervisor_node",
             lambda _state: {"todos": [], "context_next_node": "verifier"},
         ), patch(
             "tacoagent.workflow.multi_agent_workflow.intent_router_node",

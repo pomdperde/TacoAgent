@@ -8,11 +8,7 @@ from rich.panel import Panel
 from rich.pretty import Pretty
 
 from tacoagent import __version__
-from tacoagent.workflow import (
-    stream_multi_agent_session_events,
-    stream_react_session_events,
-    stream_single_agent_session_events,
-)
+from tacoagent.workflow import stream_session_events
 
 
 app = typer.Typer(
@@ -38,18 +34,12 @@ def _run_and_render(
     workflow_mode: WorkflowMode = WorkflowMode.SINGLE_AGENT,
 ) -> None:
     try:
-        if workflow_mode in {WorkflowMode.REACT}:
-            events = stream_react_session_events(
-                task, session_workspace=workspace, max_loops=max_attempts
-            )
-        elif workflow_mode == WorkflowMode.MULTI_AGENT:
-            events = stream_multi_agent_session_events(
-                task, session_workspace=workspace, max_attempts=max_attempts
-            )
-        else:
-            events = stream_single_agent_session_events(
-                task, session_workspace=workspace, max_attempts=max_attempts
-            )
+        events = stream_session_events(
+            task,
+            session_workspace=workspace,
+            workflow_mode=workflow_mode.value,
+            max_attempts=max_attempts,
+        )
         for event in events:
             event_type = event["type"]
             if event_type == "node_start":

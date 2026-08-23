@@ -11,9 +11,9 @@ from pydantic import BaseModel, Field
 from tacoagent.agents.code_agent import run_code_agent
 from tacoagent.agents.search_agent import run_search_agent
 from tacoagent.core.model import create_model
-from tacoagent.graph.nodes import _invoke_tool, _todo_write_tool
+from tacoagent.graph.node_utils import invoke_tool, stream_writer
+from tacoagent.graph.planner_support import apply_plan_result, prepare_planner
 from tacoagent.graph.state import AgentHandoff, TacoGraphState
-from tacoagent.memory import build_layered_memory, format_layered_memory_for_prompt, memory_event
 from tacoagent.prompt.multi_agent_prompt import PLANNER_PROMPT
 
 
@@ -81,27 +81,20 @@ def _call_code_agent_tool(
     return result
 
 
-def _stream_writer() -> Writer:
-    try:
-        from langgraph.config import get_stream_writer
-
-        return get_stream_writer()
-    except Exception:
-        return lambda _event: None
-
-
-def planner_node(state: TacoGraphState) -> dict[str, Any]:
+def multi_agent_supervisor_node(state: TacoGraphState) -> dict[str, Any]:
     """Supervise planning, research, and implementation through tool handoffs."""
-    writer = _stream_writer()
-    memory = build_layered_memory(state, node="planner")
-    writer(memory_event(memory, node="planner"))
+    writer = stream_writer()
+    _memory, todo_tool, planner_input = prepare_planner(
+        state,
+        node="multi_agent_supervisor",
+        include_specialist_context=True,
+    )
     working: TacoGraphState = dict(state)
     working["todos"] = deepcopy(state.get("todos", []))
     working["sources"] = deepcopy(state.get("sources", []))
     working["agent_handoffs"] = deepcopy(state.get("agent_handoffs", []))
     initial_messages = list(state.get("messages", []))
     working["messages"] = list(initial_messages)
-    todo_tool = _todo_write_tool()
     plan_written = False
 
     def call_search_agent(instruction: str) -> dict[str, Any]:
@@ -129,15 +122,6 @@ def planner_node(state: TacoGraphState) -> dict[str, Any]:
     tools = [todo_tool, search_tool, code_tool]
     by_name = {tool.name: tool for tool in tools}
     agent = create_model().bind_tools(tools)
-    planner_input = {
-        "task": state.get("task", ""),
-        "current_plan": state.get("plan_summary", ""),
-        "todos": state.get("todos", []),
-        "research_notes": state.get("research_notes", ""),
-        "sources": state.get("sources", []),
-        "last_error": state.get("last_error", ""),
-        "layered_memory": format_layered_memory_for_prompt(memory),
-    }
     messages: list[Any] = [
         SystemMessage(content=PLANNER_PROMPT),
         HumanMessage(content=json.dumps(planner_input, ensure_ascii=False, default=str)),
@@ -158,13 +142,10 @@ def planner_node(state: TacoGraphState) -> dict[str, Any]:
             args = call.get("args", {}) or {}
             writer({"type": "tool_call", "name": name, "args": args})
             before_specialist_messages = len(working.get("messages", []))
-            result = _invoke_tool(by_name.get(name), args)
+            result = invoke_tool(by_name.get(name), args)
             if name == todo_tool.name and isinstance(result, dict) and result.get("todos"):
                 plan_written = True
-                working["plan_summary"] = str(result.get("plan_summary", ""))
-                working["todos"] = result["todos"]
-                working["acceptance_criteria"] = list(result.get("acceptance_criteria", []))
-                working["verification_commands"] = list(result.get("verification_commands", []))
+                apply_plan_result(working, result)
             added = list(working.get("messages", []))[before_specialist_messages:]
             output_messages.extend(added)
             tool_message = ToolMessage(
@@ -187,6 +168,6 @@ def planner_node(state: TacoGraphState) -> dict[str, Any]:
         "code_agent_summary": working.get("code_agent_summary", ""),
         "last_actor_summary": working.get("last_actor_summary", ""),
         "messages": output_messages,
-        "planner_summary": summary,
+        "supervisor_summary": summary,
         "context_next_node": "verifier",
     }

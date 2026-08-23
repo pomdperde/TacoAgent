@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from tacoagent.core.session import load_or_create_session
-from tacoagent.workflow.session_events import run_session_event_stream
+from tacoagent.workflow.session_workflow import run_session_event_stream, stream_session_events
 
 
 class SessionEventTests(unittest.TestCase):
@@ -45,7 +45,7 @@ class SessionEventTests(unittest.TestCase):
         self.assertEqual(events[0]["type"], "session_turn")
         self.assertEqual(events[-1]["type"], "session_saved")
         self.assertEqual(events[-1]["route"], "chat")
-        self.assertIn("你好", captured["session_context"])
+        self.assertNotIn("你好", captured["session_context"])
         self.assertEqual(captured["session_turn"], 1)
         self.assertEqual(captured["max_attempts"], 3)
         self.assertEqual(
@@ -68,7 +68,26 @@ class SessionEventTests(unittest.TestCase):
 
         self.assertEqual(len(contexts), 2)
         self.assertIn("第一轮完成", contexts[1])
-        self.assertIn("继续", contexts[1])
+        self.assertNotIn("继续", contexts[1])
+
+    def test_failed_turn_is_persisted_before_exception_is_reraised(self) -> None:
+        def failing_stream(_task, **_kwargs):
+            yield {"type": "intent_route", "intent_route": "workflow"}
+            raise RuntimeError("boom")
+
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(RuntimeError, "boom"):
+                list(
+                    run_session_event_stream(
+                        "fail", session_workspace=directory, stream=failing_stream
+                    )
+                )
+            session = load_or_create_session(Path(directory))
+
+        assistant = session["recent_turns"][-1]
+        self.assertEqual(assistant["role"], "assistant")
+        self.assertEqual(assistant["status"], "failed")
+        self.assertIn("RuntimeError", assistant["content"])
 
     def test_workflow_turn_creates_external_task_memory(self) -> None:
         def fake_stream(_task, **_kwargs):
@@ -89,6 +108,45 @@ class SessionEventTests(unittest.TestCase):
             self.assertTrue(memory_path.is_file())
             saved = next(event for event in events if event["type"] == "task_memory_saved")
             self.assertEqual(saved["status"], "completed")
+
+    def test_closed_stream_records_cancelled_turn(self) -> None:
+        def long_stream(_task, **_kwargs):
+            yield {"type": "intent_route", "intent_route": "workflow"}
+            yield {"type": "tool_call", "name": "slow"}
+
+        with tempfile.TemporaryDirectory() as directory:
+            events = run_session_event_stream(
+                "cancel", session_workspace=directory, stream=long_stream
+            )
+            next(events)
+            next(events)
+            events.close()
+            session = load_or_create_session(Path(directory))
+
+        self.assertEqual(session["recent_turns"][-1]["status"], "cancelled")
+
+    def test_unified_dispatcher_selects_react_workflow(self) -> None:
+        workflow_events = iter(
+            [
+                {"type": "intent_route", "intent_route": "chat"},
+                {"type": "final_answer", "content": "done"},
+            ]
+        )
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "tacoagent.workflow.react_workflow.stream_react_workflow_events",
+            return_value=workflow_events,
+        ) as selected:
+            list(
+                stream_session_events(
+                    "hello",
+                    session_workspace=directory,
+                    workflow_mode="react",
+                    max_attempts=7,
+                )
+            )
+
+        self.assertEqual(selected.call_args.kwargs["max_loops"], 7)
+        self.assertIn("session_context", selected.call_args.kwargs)
 
 
 if __name__ == "__main__":

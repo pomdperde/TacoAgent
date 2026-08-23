@@ -9,8 +9,8 @@ from unittest.mock import patch
 from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
 
-from tacoagent.core.state import RuntimeState
-from tacoagent.graph.nodes import context_compressor_node
+from tacoagent.core.runtime import RuntimeState
+from tacoagent.graph.context_compressor_node import context_compressor_node
 
 
 class CompressionModel:
@@ -43,7 +43,7 @@ class BrokenTokenCompressionModel(CompressionModel):
 class ContextCompressorTests(unittest.TestCase):
     def test_replaces_messages_persists_summary_and_truncates_state(self) -> None:
         with tempfile.TemporaryDirectory() as directory, patch(
-            "tacoagent.graph.nodes.create_model", return_value=CompressionModel()
+            "tacoagent.graph.context_compressor_node.create_model", return_value=CompressionModel()
         ):
             state = {
                 "runtime": RuntimeState(directory),
@@ -92,7 +92,7 @@ class ContextCompressorTests(unittest.TestCase):
 
     def test_new_token_count_falls_back_to_summary_length(self) -> None:
         with tempfile.TemporaryDirectory() as directory, patch(
-            "tacoagent.graph.nodes.create_model",
+            "tacoagent.graph.context_compressor_node.create_model",
             return_value=BrokenTokenCompressionModel(),
         ):
             result = context_compressor_node(

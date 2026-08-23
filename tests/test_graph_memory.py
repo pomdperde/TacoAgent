@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tacoagent.core.state import RuntimeState
+from tacoagent.core.runtime import RuntimeState
 from tacoagent.memory import (
     RULES_LAYER,
     _short_text,

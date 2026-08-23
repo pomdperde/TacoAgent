@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import os
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -14,6 +16,8 @@ SESSION_FILE = "session.json"
 SESSION_SUMMARY_FILE = "SESSION_SUMMARY.md"
 MAX_SESSION_CONTEXT = 7000
 MAX_TURN_CONTENT = 4000
+MAX_STORED_TURNS = 200
+MAX_ASSISTANT_SUMMARY = 800
 
 
 def _now() -> str:
@@ -91,7 +95,13 @@ def append_user_turn(session: dict[str, Any], content: str) -> int:
 
 
 def append_assistant_turn(
-    session: dict[str, Any], *, turn: int, route: str, content: str, summary: str = ""
+    session: dict[str, Any],
+    *,
+    turn: int,
+    route: str,
+    content: str,
+    summary: str = "",
+    status: str = "completed",
 ) -> None:
     """Record an assistant response associated with an existing user turn."""
     normalized_route = route if route in {"chat", "workflow"} else "workflow"
@@ -102,6 +112,7 @@ def append_assistant_turn(
             "route": normalized_route,
             "content": _short_text(content),
             "summary": _short_text(summary),
+            "status": status,
             "timestamp": _now(),
         }
     )
@@ -138,17 +149,27 @@ def save_session(workspace: str | Path, session: dict[str, Any]) -> dict[str, An
     root = _session_root(workspace)
     root.mkdir(parents=True, exist_ok=True)
     normalized = _normalize_session(session)
+    normalized["recent_turns"] = normalized["recent_turns"][-MAX_STORED_TURNS:]
     normalized["updated_at"] = _now()
     # Keep the in-memory object synchronized while preserving its identity.
     session.clear()
     session.update(normalized)
-    (root / SESSION_FILE).write_text(
-        json.dumps(session, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    (root / SESSION_SUMMARY_FILE).write_text(
-        _summary_markdown(session), encoding="utf-8"
-    )
+    _atomic_write(root / SESSION_FILE, json.dumps(session, ensure_ascii=False, indent=2))
+    _atomic_write(root / SESSION_SUMMARY_FILE, _summary_markdown(session))
     return session
+
+
+def _atomic_write(path: Path, content: str) -> None:
+    temporary = path.with_name(path.name + ".tmp")
+    try:
+        with temporary.open("w", encoding="utf-8") as stream:
+            stream.write(content)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary.exists():
+            temporary.unlink(missing_ok=True)
 
 
 def _recent_workspace_files(workspace: Path) -> list[str]:
@@ -169,7 +190,10 @@ def _recent_workspace_files(workspace: Path) -> list[str]:
 
 
 def build_session_context(
-    workspace: str | Path, session: dict[str, Any] | None = None
+    workspace: str | Path,
+    session: dict[str, Any] | None = None,
+    *,
+    before_turn: int | None = None,
 ) -> str:
     """Build a bounded context containing identity, files and recent dialogue."""
     workspace_path = Path(workspace).expanduser().resolve()
@@ -184,7 +208,10 @@ def build_session_context(
     )
     remaining = max(0, MAX_SESSION_CONTEXT - len(header) - 1)
     selected: list[str] = []
-    for item in reversed(current.get("recent_turns", [])[-10:]):
+    turns = current.get("recent_turns", [])
+    if before_turn is not None:
+        turns = [item for item in turns if int(item.get("turn", 0)) < before_turn]
+    for item in reversed(turns[-10:]):
         content = item.get("summary") or item.get("content") or ""
         route = f"/{item.get('route')}" if item.get("route") else ""
         line = (
@@ -201,3 +228,55 @@ def build_session_context(
     selected.reverse()
     context = header + "\n" + ("\n".join(selected) if selected else "(none)")
     return _short_text(context, MAX_SESSION_CONTEXT)
+
+
+@dataclass(frozen=True, slots=True)
+class SessionTurn:
+    number: int
+    session_id: str
+    context: str
+
+
+class SessionManager:
+    """Own one workspace session and provide atomic turn lifecycle operations."""
+
+    def __init__(self, workspace: str | Path) -> None:
+        self.workspace = Path(workspace).expanduser().resolve()
+        self.session = load_or_create_session(self.workspace)
+
+    @property
+    def session_id(self) -> str:
+        return str(self.session["session_id"])
+
+    def context(self, *, before_turn: int | None = None) -> str:
+        return build_session_context(
+            self.workspace, self.session, before_turn=before_turn
+        )
+
+    def start_turn(self, content: str) -> SessionTurn:
+        number = append_user_turn(self.session, content)
+        # Exclude the latest input: entry_nodes already places it in the prompt.
+        context = self.context(before_turn=number)
+        save_session(self.workspace, self.session)
+        return SessionTurn(number=number, session_id=self.session_id, context=context)
+
+    def complete_turn(
+        self,
+        turn: SessionTurn | int,
+        *,
+        route: str,
+        content: str,
+        summary: str = "",
+        status: str = "completed",
+    ) -> None:
+        number = turn.number if isinstance(turn, SessionTurn) else int(turn)
+        compact_summary = summary or _short_text(content, MAX_ASSISTANT_SUMMARY)
+        append_assistant_turn(
+            self.session,
+            turn=number,
+            route=route,
+            content=content,
+            summary=compact_summary,
+            status=status,
+        )
+        save_session(self.workspace, self.session)

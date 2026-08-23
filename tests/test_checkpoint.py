@@ -14,7 +14,7 @@ from tacoagent.core.checkpoint import (
     normalize_checkpoint_mode,
     resume_command,
 )
-from tacoagent.core.state import RuntimeState
+from tacoagent.core.runtime import RuntimeState
 
 
 class CheckpointTests(unittest.TestCase):

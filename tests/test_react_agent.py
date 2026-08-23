@@ -94,9 +94,11 @@ class ReactAgentTests(unittest.TestCase):
                     "do work", workspace=directory, max_loops=4
                 )
             )
-            log_text = (
-                Path(directory) / ".tacoagent" / "workflow_events.jsonl"
-            ).read_text(encoding="utf-8")
+            trace_root = next((Path(directory) / ".tacoagent" / "traces").glob("trace-*"))
+            log_text = (trace_root / "events.jsonl").read_text(encoding="utf-8")
+            self.assertFalse(
+                (Path(directory) / ".tacoagent" / "workflow_events.jsonl").exists()
+            )
 
         self.assertEqual(
             [event["type"] for event in result],
@@ -119,7 +121,7 @@ class ReactAgentTests(unittest.TestCase):
             for line in log_text.splitlines()
         ]
         self.assertEqual(records[0]["workflow"], "react")
-        self.assertEqual(records[0]["type"], "node_start")
+        self.assertEqual(records[0]["type"], "run_start")
         self.assertTrue(any(record["type"] == "memory_snapshot" for record in records))
         self.assertTrue(all(record.get("timestamp") for record in records))
 

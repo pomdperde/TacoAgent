@@ -5,7 +5,7 @@ from typing import Annotated, Any, TypedDict
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 
-from tacoagent.core.state import RuntimeState
+from tacoagent.core.runtime import RuntimeState
 
 
 class TodoItem(TypedDict):
@@ -80,7 +80,7 @@ class TacoGraphState(TypedDict, total=False):
     memory_snapshot: LayeredMemory
     agent_handoffs: list[AgentHandoff]
     code_agent_summary: str
-    planner_summary: str
+    supervisor_summary: str
     verifier_summary: str
     session_id: str
     session_turn: int

@@ -142,18 +142,22 @@ class GraphWorkflowTests(unittest.TestCase):
             events = list(
                 stream_workflow_events("task", workspace=directory, max_attempts=2)
             )
-            log_text = (
-                Path(directory) / ".tacoagent" / "workflow_events.jsonl"
-            ).read_text(encoding="utf-8")
+            trace_root = next((Path(directory) / ".tacoagent" / "traces").glob("trace-*"))
+            log_text = (trace_root / "events.jsonl").read_text(encoding="utf-8")
+            self.assertFalse(
+                (Path(directory) / ".tacoagent" / "workflow_events.jsonl").exists()
+            )
 
         starts = [event["node"] for event in events if event["type"] == "node_start"]
         outputs = [event["node"] for event in events if event["type"] == "node_output"]
         self.assertEqual(
-            starts, ["intent_router", "planner", "context_monitor", "actor", "verifier", "final"]
+            starts, ["intent_router", "single_agent_planner", "context_monitor", "actor", "verifier", "final"]
         )
         self.assertEqual(outputs, starts)
         records = [json.loads(line) for line in log_text.splitlines()]
-        self.assertTrue(all(record["workflow"] == "graph" for record in records))
+        self.assertEqual(records[0]["workflow"], "single-agent")
+        node_records = [record for record in records if record.get("type") == "node_output"]
+        self.assertTrue(all(record["workflow"] == "graph" for record in node_records))
         self.assertEqual(
             [record["node"] for record in records if record["type"] == "node_output"],
             starts,

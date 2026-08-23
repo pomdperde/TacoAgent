@@ -7,9 +7,10 @@ from unittest.mock import patch
 
 from langchain_core.messages import AIMessage
 
-from tacoagent.core.state import RuntimeState
-from tacoagent.graph.nodes import actor_node, verifier_node, verifier_route
-from tacoagent.graph.planner_node import planner_node
+from tacoagent.core.runtime import RuntimeState
+from tacoagent.graph.actor_node import actor_node
+from tacoagent.graph.verifier_node import verifier_node, verifier_route
+from tacoagent.graph.multi_agent_supervisor_node import multi_agent_supervisor_node
 
 
 class FakeBoundModel:
@@ -46,9 +47,9 @@ class GraphNodeTests(unittest.TestCase):
         )
         model = FakeBoundModel([response, AIMessage(content="Plan published.")])
         with tempfile.TemporaryDirectory() as directory, patch(
-            "tacoagent.graph.planner_node.create_model", return_value=model
+            "tacoagent.graph.multi_agent_supervisor_node.create_model", return_value=model
         ):
-            result = planner_node(
+            result = multi_agent_supervisor_node(
                 {"task": "build it", "runtime": RuntimeState(directory)}
             )
 
@@ -79,7 +80,7 @@ class GraphNodeTests(unittest.TestCase):
                 "runtime": RuntimeState(directory),
                 "todos": [{"id": "todo-1", "content": "Build", "status": "pending", "note": ""}],
             }
-            with patch("tacoagent.graph.nodes.create_model", return_value=FakeBoundModel(responses)):
+            with patch("tacoagent.graph.actor_node.create_model", return_value=FakeBoundModel(responses)):
                 result = actor_node(state)
 
         self.assertEqual(result["todos"][0]["status"], "completed")
@@ -147,19 +148,19 @@ class GraphNodeTests(unittest.TestCase):
         with (
             tempfile.TemporaryDirectory() as directory,
             patch(
-                "tacoagent.graph.planner_node.create_model",
+                "tacoagent.graph.multi_agent_supervisor_node.create_model",
                 return_value=FakeBoundModel(responses),
             ),
             patch(
-                "tacoagent.graph.planner_node.run_search_agent",
+                "tacoagent.graph.multi_agent_supervisor_node.run_search_agent",
                 return_value=search_result,
             ),
             patch(
-                "tacoagent.graph.planner_node.run_code_agent",
+                "tacoagent.graph.multi_agent_supervisor_node.run_code_agent",
                 return_value=code_result,
             ),
         ):
-            result = planner_node(
+            result = multi_agent_supervisor_node(
                 {"task": "research and build", "runtime": RuntimeState(directory)}
             )
 
@@ -172,7 +173,7 @@ class GraphNodeTests(unittest.TestCase):
             ["searchAgent", "codeAgent"],
         )
         self.assertIn(code_message, result["messages"])
-        self.assertEqual(result["planner_summary"], "Specialists completed the planned work.")
+        self.assertEqual(result["supervisor_summary"], "Specialists completed the planned work.")
 
     def test_verifier_combines_review_and_command_results(self) -> None:
         review = AIMessage(
@@ -185,7 +186,7 @@ class GraphNodeTests(unittest.TestCase):
                 "todos": [{"id": "todo-1", "content": "Build", "status": "in_progress", "note": ""}],
                 "attempts": 0,
             }
-            with patch("tacoagent.graph.nodes.create_model", return_value=FakeBoundModel([review])):
+            with patch("tacoagent.graph.verifier_node.create_model", return_value=FakeBoundModel([review])):
                 result = verifier_node(state)
 
         self.assertTrue(result["passed"])

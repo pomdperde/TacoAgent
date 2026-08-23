@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 from langchain_core.messages import HumanMessage
 
-from tacoagent.core.state import RuntimeState
-from tacoagent.graph.nodes import context_monitor_node, context_monitor_route
+from tacoagent.core.runtime import RuntimeState
+from tacoagent.graph.context_monitor_node import context_monitor_node, context_monitor_route
 
 
 class CountingModel:
@@ -29,7 +29,7 @@ class ContextMonitorTests(unittest.TestCase):
     def test_uses_model_token_counter_with_layered_memory_message(self) -> None:
         model = CountingModel(125)
         with tempfile.TemporaryDirectory() as directory, patch(
-            "tacoagent.graph.nodes.create_model", return_value=model
+            "tacoagent.graph.context_monitor_node.create_model", return_value=model
         ):
             result = context_monitor_node(
                 {
@@ -48,7 +48,7 @@ class ContextMonitorTests(unittest.TestCase):
 
     def test_falls_back_to_character_estimate(self) -> None:
         with tempfile.TemporaryDirectory() as directory, patch(
-            "tacoagent.graph.nodes.create_model", return_value=BrokenCountingModel()
+            "tacoagent.graph.context_monitor_node.create_model", return_value=BrokenCountingModel()
         ):
             result = context_monitor_node(
                 {

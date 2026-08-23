@@ -13,12 +13,14 @@ from .checkpoint import (
     normalize_checkpoint_mode,
     resume_command,
 )
-from .trace import TraceRecorder, normalize_trace_mode
+from .trace import TraceRecorder, WorkflowEventRecorder, normalize_trace_mode
 from .agent import AgentResponse, TacoAgent
 from .model import DEFAULT_MODEL, create_model
 from .react import ACTOR_PROMPT, stream_agent_events
-from .state import RuntimeState
+from .runtime import RuntimeState
 from .session import (
+    SessionManager,
+    SessionTurn,
     append_assistant_turn,
     append_user_turn,
     build_session_context,
@@ -33,6 +35,7 @@ __all__ = [
     "ApprovalRequest",
     "CheckpointManager",
     "TraceRecorder",
+    "WorkflowEventRecorder",
     "normalize_trace_mode",
     "ACTOR_PROMPT",
     "DEFAULT_MODEL",
@@ -52,6 +55,8 @@ __all__ = [
     "append_assistant_turn",
     "save_session",
     "build_session_context",
+    "SessionManager",
+    "SessionTurn",
     "generate_task_summary",
     "save_task_summary",
     "load_task_summaries",

@@ -7,28 +7,26 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
-from tacoagent.core.state import RuntimeState
-from tacoagent.graph.event_log import WorkflowEventRecorder
+from tacoagent.core.runtime import RuntimeState
+from tacoagent.core.trace import WorkflowEventRecorder
 from tacoagent.workflow.single_agent_workflow import _observed_node
-from tacoagent.graph.nodes import (
-    context_compressor_node,
-    context_compressor_route,
-    context_monitor_node,
-    context_monitor_route,
-    final_node,
-    verifier_node,
-    verifier_route,
-)
-from tacoagent.graph.planner_node import planner_node
+from tacoagent.graph.context_compressor_node import context_compressor_node, context_compressor_route
+from tacoagent.graph.context_monitor_node import context_monitor_node, context_monitor_route
+from tacoagent.graph.final_node import final_node
+from tacoagent.graph.verifier_node import verifier_node, verifier_route
+from tacoagent.graph.multi_agent_supervisor_node import multi_agent_supervisor_node
 from tacoagent.graph.state import TacoGraphState
-from tacoagent.workflow.entry_nodes import chat_responder_node, intent_route_fn, intent_router_node
+from tacoagent.graph.entry_nodes import chat_responder_node, intent_route_fn, intent_router_node
 
 
 def build_multi_agent_workflow() -> CompiledStateGraph:
     graph = StateGraph(TacoGraphState)
     graph.add_node("intent_router", _observed_node("intent_router", intent_router_node))
     graph.add_node("chat_responder", _observed_node("chat_responder", chat_responder_node))
-    graph.add_node("planner", _observed_node("planner", planner_node))
+    graph.add_node(
+        "multi_agent_supervisor",
+        _observed_node("multi_agent_supervisor", multi_agent_supervisor_node),
+    )
     graph.add_node("verifier", _observed_node("verifier", verifier_node))
     graph.add_node("context_monitor", _observed_node("context_monitor", context_monitor_node))
     graph.add_node("context_compressor", _observed_node("context_compressor", context_compressor_node))
@@ -37,27 +35,27 @@ def build_multi_agent_workflow() -> CompiledStateGraph:
     graph.add_conditional_edges(
         "intent_router",
         intent_route_fn,
-        {"chat": "chat_responder", "workflow": "planner"},
+        {"chat": "chat_responder", "workflow": "multi_agent_supervisor"},
     )
     graph.add_edge("chat_responder", END)
-    graph.add_edge("planner", "context_monitor")
+    graph.add_edge("multi_agent_supervisor", "context_monitor")
     graph.add_conditional_edges(
         "context_monitor",
         context_monitor_route,
         {
             "context_compressor": "context_compressor",
             "verifier": "verifier",
-            "planner": "planner",
+            "planner": "multi_agent_supervisor",
             "final": "final",
         },
     )
     graph.add_conditional_edges(
         "context_compressor",
         context_compressor_route,
-        {"verifier": "verifier", "planner": "planner", "final": "final"},
+        {"verifier": "verifier", "planner": "multi_agent_supervisor", "final": "final"},
     )
     graph.add_conditional_edges(
-        "verifier", verifier_route, {"planner": "planner", "final": "final"}
+        "verifier", verifier_route, {"planner": "multi_agent_supervisor", "final": "final"}
     )
     graph.add_edge("final", END)
     return graph.compile()
@@ -105,7 +103,7 @@ def stream_multi_agent_workflow_events(
                 output = {"type": "intent_route", **payload}
             elif node == "chat_responder":
                 output = {"type": "final_answer", "content": payload.get("final_answer", "")}
-            elif node == "planner":
+            elif node == "multi_agent_supervisor":
                 output = {"type": "plan_snapshot", **payload}
             elif node == "verifier":
                 output = {
@@ -126,17 +124,3 @@ def stream_multi_agent_workflow_events(
             if output["type"] == "final_answer":
                 recorder.end(status="completed", result=output.get("content", ""))
             yield output
-
-
-def stream_session_events(
-    task: str, *, session_workspace: str | Path | None = None, max_attempts: int = 3
-) -> Iterator[dict[str, Any]]:
-    """Run one persistent multi-turn session through the multi-agent graph."""
-    from tacoagent.workflow.session_events import run_session_event_stream
-
-    return run_session_event_stream(
-        task,
-        session_workspace=session_workspace,
-        stream=stream_multi_agent_workflow_events,
-        stream_kwargs={"max_attempts": max_attempts},
-    )

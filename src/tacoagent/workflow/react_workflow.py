@@ -8,12 +8,12 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
 from tacoagent.core.react import stream_agent_events
-from tacoagent.core.state import RuntimeState
+from tacoagent.core.runtime import RuntimeState
 from tacoagent.core.trace import trace_now
-from tacoagent.graph.event_log import WorkflowEventRecorder
+from tacoagent.core.trace import WorkflowEventRecorder
 from tacoagent.memory import build_layered_memory, format_layered_memory_for_prompt, memory_event
 from tacoagent.graph.state import TacoGraphState
-from tacoagent.workflow.entry_nodes import chat_responder_node, intent_route_fn, intent_router_node
+from tacoagent.graph.entry_nodes import chat_responder_node, intent_route_fn, intent_router_node
 from tacoagent.workflow.single_agent_workflow import _observed_node
 
 
@@ -118,17 +118,3 @@ def stream_react_workflow_events(
             if output["type"] == "final_answer":
                 recorder.end(status="completed", result=output.get("content", ""))
             yield output
-
-
-def stream_session_events(
-    task: str, *, session_workspace: str | Path | None = None, max_loops: int = 10
-) -> Iterator[dict[str, Any]]:
-    """Run one persistent multi-turn session through the ReAct graph."""
-    from tacoagent.workflow.session_events import run_session_event_stream
-
-    return run_session_event_stream(
-        task,
-        session_workspace=session_workspace,
-        stream=stream_react_workflow_events,
-        stream_kwargs={"max_loops": max_loops},
-    )

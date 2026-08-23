@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Iterable
 from uuid import uuid4
 
 if TYPE_CHECKING:
-    from tacoagent.core.state import RuntimeState
+    from tacoagent.core.runtime import RuntimeState
     from tacoagent.graph.state import LayeredMemory, TacoGraphState
 
 

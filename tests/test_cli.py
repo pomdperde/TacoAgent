@@ -29,7 +29,7 @@ class TacoCliTests(unittest.TestCase):
                 {"type": "final_answer", "content": "done"},
             ]
         )
-        with patch.object(cli_module, "stream_single_agent_session_events", return_value=events) as stream:
+        with patch.object(cli_module, "stream_session_events", return_value=events) as stream:
             result = CliRunner().invoke(app, ["run", "task"])
         self.assertEqual(result.exit_code, 0)
         self.assertIn("Planner", result.stdout)
@@ -40,8 +40,7 @@ class TacoCliTests(unittest.TestCase):
     def test_run_can_switch_to_react_compatibility_workflow(self) -> None:
         events = iter([{"type": "final_answer", "content": "react done"}])
         with (
-            patch.object(cli_module, "stream_react_session_events", return_value=events) as react_stream,
-            patch.object(cli_module, "stream_single_agent_session_events") as graph_stream,
+            patch.object(cli_module, "stream_session_events", return_value=events) as react_stream,
         ):
             result = CliRunner().invoke(
                 app,
@@ -51,15 +50,12 @@ class TacoCliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertIn("react done", result.stdout)
         react_stream.assert_called_once()
-        graph_stream.assert_not_called()
+        self.assertEqual(react_stream.call_args.kwargs["workflow_mode"], "react")
 
     def test_run_can_switch_to_multi_agent_workflow(self) -> None:
         events = iter([{"type": "final_answer", "content": "multi done"}])
         with (
-            patch.object(
-                cli_module, "stream_multi_agent_session_events", return_value=events
-            ) as multi_stream,
-            patch.object(cli_module, "stream_single_agent_session_events") as single_stream,
+            patch.object(cli_module, "stream_session_events", return_value=events) as multi_stream,
         ):
             result = CliRunner().invoke(
                 app, ["run", "task", "--mode", "multi-agent"]
@@ -68,7 +64,7 @@ class TacoCliTests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertIn("multi done", result.stdout)
         multi_stream.assert_called_once()
-        single_stream.assert_not_called()
+        self.assertEqual(multi_stream.call_args.kwargs["workflow_mode"], "multi-agent")
 
 
 if __name__ == "__main__":

@@ -5,10 +5,12 @@ from pathlib import Path
 
 from tacoagent.core.session import (
     MAX_SESSION_CONTEXT,
+    MAX_STORED_TURNS,
     MAX_TURN_CONTENT,
     SESSION_FILE,
     SESSION_ROOT,
     SESSION_SUMMARY_FILE,
+    SessionManager,
     append_assistant_turn,
     append_user_turn,
     build_session_context,
@@ -82,6 +84,27 @@ class SessionTests(unittest.TestCase):
             self.assertEqual(session["turn_index"], 0)
             payload = json.loads((root / SESSION_FILE).read_text(encoding="utf-8"))
             self.assertEqual(payload["session_id"], session["session_id"])
+
+    def test_save_trims_history_and_removes_temporary_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            session = load_or_create_session(workspace)
+            for index in range(MAX_STORED_TURNS + 10):
+                append_user_turn(session, str(index))
+            save_session(workspace, session)
+
+            self.assertEqual(len(session["recent_turns"]), MAX_STORED_TURNS)
+            self.assertFalse((workspace / SESSION_ROOT / f"{SESSION_FILE}.tmp").exists())
+
+    def test_manager_context_excludes_current_input(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            manager = SessionManager(directory)
+            first = manager.start_turn("first unique input")
+            manager.complete_turn(first, route="chat", content="first answer")
+            second = manager.start_turn("second unique input")
+
+            self.assertIn("first answer", second.context)
+            self.assertNotIn("second unique input", second.context)
 
 
 if __name__ == "__main__":

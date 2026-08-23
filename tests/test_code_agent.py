@@ -9,7 +9,7 @@ from unittest.mock import patch
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
 from tacoagent.agents.code_agent import run_code_agent
-from tacoagent.core.state import RuntimeState
+from tacoagent.core.runtime import RuntimeState
 
 
 class FakeModel:
