@@ -11,6 +11,13 @@ from tacoagent.graph.entry_nodes import (
 
 
 class EntryNodeTests(unittest.TestCase):
+    def test_router_can_be_forced_to_workflow_without_model_call(self) -> None:
+        with patch("tacoagent.graph.entry_nodes.create_model") as create_model:
+            result = intent_router_node({"task": "fix issue", "force_workflow": True})
+        create_model.assert_not_called()
+        self.assertEqual(result["intent_route"], "workflow")
+        self.assertEqual(result["intent_confidence"], 1.0)
+
     def test_router_selects_workflow_for_confident_task(self) -> None:
         model = Mock()
         model.invoke.return_value = AIMessage(

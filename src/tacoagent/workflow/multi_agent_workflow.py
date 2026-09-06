@@ -45,17 +45,19 @@ def build_multi_agent_workflow() -> CompiledStateGraph:
         {
             "context_compressor": "context_compressor",
             "verifier": "verifier",
-            "planner": "multi_agent_supervisor",
             "final": "final",
         },
     )
     graph.add_conditional_edges(
         "context_compressor",
         context_compressor_route,
-        {"verifier": "verifier", "planner": "multi_agent_supervisor", "final": "final"},
+        {"verifier": "verifier", "final": "final"},
     )
     graph.add_conditional_edges(
-        "verifier", verifier_route, {"planner": "multi_agent_supervisor", "final": "final"}
+        "verifier", verifier_route, {
+            "actor": "multi_agent_supervisor",
+            "final": "final",
+        }
     )
     graph.add_edge("final", END)
     return graph.compile()
@@ -69,6 +71,8 @@ def stream_multi_agent_workflow_events(
     session_context: str = "",
     session_id: str = "",
     session_turn: int = 0,
+    force_workflow: bool = False,
+    disable_web_search: bool = False,
 ) -> Iterator[dict[str, Any]]:
     task = task.strip()
     if not task:
@@ -88,6 +92,9 @@ def stream_multi_agent_workflow_events(
         "session_context": session_context,
         "session_id": session_id,
         "session_turn": session_turn,
+        "force_workflow": force_workflow,
+        "disable_web_search": disable_web_search,
+        "actor_convergence_limit": 4,
     }
     for mode, event in build_multi_agent_workflow().stream(
         inputs, stream_mode=["updates", "custom"]

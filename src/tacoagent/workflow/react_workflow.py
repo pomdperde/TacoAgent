@@ -14,6 +14,7 @@ from tacoagent.core.trace import WorkflowEventRecorder
 from tacoagent.memory import build_layered_memory, format_layered_memory_for_prompt, memory_event
 from tacoagent.graph.state import TacoGraphState
 from tacoagent.graph.entry_nodes import chat_responder_node, intent_route_fn, intent_router_node
+from tacoagent.graph.patch_status import inspect_workspace_patch
 from tacoagent.workflow.single_agent_workflow import _observed_node
 
 
@@ -48,7 +49,16 @@ def react_node(state: TacoGraphState) -> dict[str, Any]:
     except Exception as exc:
         writer({"type": "node_output", "node": "react", "started_at": started_at, "ended_at": trace_now(), "duration_ms": round((perf_counter() - started) * 1000, 3), "task_goal": instruction, "input_instruction": instruction, "return_result": {"error": f"{type(exc).__name__}: {exc}"}, "task_status": "failed"})
         raise
-    output = {"final_answer": final_answer, "last_actor_summary": final_answer, "passed": True, "attempts": 1, "react_token_usage": token_usage}
+    patch_status = inspect_workspace_patch(runtime.workspace)
+    output = {
+        "final_answer": final_answer,
+        "last_actor_summary": final_answer,
+        "passed": False,
+        "attempts": 1,
+        "verification_status": "not_verified",
+        "patch_status": patch_status,
+        "react_token_usage": token_usage,
+    }
     writer({"type": "node_output", "node": "react", "started_at": started_at, "ended_at": trace_now(), "duration_ms": round((perf_counter() - started) * 1000, 3), "task_goal": instruction, "input_instruction": instruction, "return_result": output, "output": output, "task_status": "completed"})
     return output
 
@@ -77,6 +87,7 @@ def stream_react_workflow_events(
     session_context: str = "",
     session_id: str = "",
     session_turn: int = 0,
+    force_workflow: bool = False,
 ) -> Iterator[dict[str, Any]]:
     task = task.strip()
     if not task:
@@ -93,6 +104,7 @@ def stream_react_workflow_events(
         "session_context": session_context,
         "session_id": session_id,
         "session_turn": session_turn,
+        "force_workflow": force_workflow,
     }
     for mode, event in build_react_workflow().stream(inputs, stream_mode=["updates", "custom"]):
         if mode == "custom":

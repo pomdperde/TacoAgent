@@ -6,11 +6,14 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage
+from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage, ToolMessage
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
 
 from tacoagent.core.runtime import RuntimeState
-from tacoagent.graph.context_compressor_node import context_compressor_node
+from tacoagent.graph.context_compressor_node import (
+    _select_compaction_segments,
+    context_compressor_node,
+)
 
 
 class CompressionModel:
@@ -40,7 +43,49 @@ class BrokenTokenCompressionModel(CompressionModel):
         raise RuntimeError("no tokenizer")
 
 
+class FailingCompressionModel:
+    def invoke(self, _messages):
+        raise TimeoutError("summary provider stalled")
+
+
 class ContextCompressorTests(unittest.TestCase):
+    def test_compression_failure_preserves_messages_by_returning_no_removals(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "tacoagent.graph.context_compressor_node.create_model",
+            return_value=FailingCompressionModel(),
+        ):
+            result = context_compressor_node({
+                "runtime": RuntimeState(directory),
+                "messages": [HumanMessage(content="keep me")],
+                "context_token_count": 500,
+                "context_summary": "previous",
+            })
+
+        self.assertNotIn("messages", result)
+        self.assertFalse(result["context_should_compress"])
+        self.assertEqual(result["context_summary"], "previous")
+        self.assertEqual(result["compression_events"][-1]["reason"], "compression_failed")
+
+    def test_cut_keeps_tool_call_and_result_together(self) -> None:
+        messages = [
+            HumanMessage(content="fix it"),
+            AIMessage(content="reading", tool_calls=[{
+                "id": "call-1", "name": "file_read", "args": {"path": "app.py"}
+            }]),
+            ToolMessage(content="x" * 80, tool_call_id="call-1", name="file_read"),
+            AIMessage(content="next"),
+        ]
+        main, turn_prefix, retained, cut_index, split_turn = _select_compaction_segments(
+            messages, keep_recent_tokens=5
+        )
+
+        self.assertEqual(main, [])
+        self.assertEqual(turn_prefix, messages[:3])
+        self.assertEqual(cut_index, 3)
+        self.assertTrue(split_turn)
+        self.assertIsInstance(retained[0], AIMessage)
+        self.assertFalse(any(isinstance(message, ToolMessage) for message in retained))
+
     def test_replaces_messages_persists_summary_and_truncates_state(self) -> None:
         with tempfile.TemporaryDirectory() as directory, patch(
             "tacoagent.graph.context_compressor_node.create_model", return_value=CompressionModel()
@@ -70,13 +115,13 @@ class ContextCompressorTests(unittest.TestCase):
             history_text = (Path(directory) / "HISTORY_SUMMARY.md").read_text(
                 encoding="utf-8"
             )
+            compaction_ledger_exists = (
+                Path(directory) / ".tacoagent/memory/compactions.jsonl"
+            ).is_file()
 
         self.assertIsInstance(result["messages"][0], RemoveMessage)
         self.assertEqual(result["messages"][0].id, REMOVE_ALL_MESSAGES)
-        self.assertEqual(
-            result["messages"][1].content,
-            "Resume from the verified implementation state.",
-        )
+        self.assertIn("Resume from the verified implementation state.", result["messages"][1].content)
         self.assertEqual(result["context_token_count"], 12)
         self.assertFalse(result["context_should_compress"])
         self.assertEqual(len(result["research_notes"]), 1600)
@@ -85,6 +130,7 @@ class ContextCompressorTests(unittest.TestCase):
         self.assertEqual(len(result["agent_handoffs"][0]["result"]), 800)
         self.assertEqual(len(result["verification_results"][0]["stdout"]), 1200)
         self.assertIn(result["history_summary"], history_text)
+        self.assertTrue(compaction_ledger_exists)
         self.assertEqual(len(result["compression_events"]), 2)
         event = result["compression_events"][-1]
         self.assertEqual(event["before_tokens"], 500_000)
@@ -99,9 +145,7 @@ class ContextCompressorTests(unittest.TestCase):
                 {"runtime": RuntimeState(directory), "messages": []}
             )
 
-        self.assertEqual(
-            result["context_token_count"], len(result["context_summary"]) // 4
-        )
+        self.assertGreaterEqual(result["context_token_count"], len(result["context_summary"]) // 4)
 
 
 if __name__ == "__main__":

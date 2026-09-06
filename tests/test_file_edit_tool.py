@@ -6,6 +6,7 @@ from pathlib import Path
 from tacoagent import TacoAgent
 from tacoagent.core.workspace import WorkspaceBoundaryError, WorkspaceSandbox
 from tacoagent.tools import FileEditTool, NonUniqueTextError
+from tacoagent.tools.factory import build_structured_tools
 
 
 class FileEditToolTests(unittest.TestCase):
@@ -38,6 +39,47 @@ class FileEditToolTests(unittest.TestCase):
                     file_path="app.txt", old_text="same", new_text="different"
                 )
             self.assertEqual(path.read_text(encoding="utf-8"), "same and same")
+
+    def test_line_mode_replaces_range_with_stale_write_guard(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory, "app.txt")
+            path.write_text("one\ntwo\nthree\n", encoding="utf-8")
+            result = FileEditTool(WorkspaceSandbox(directory)).invoke(
+                file_path="app.txt", mode="line", start_line=2, end_line=2,
+                expected_text="two\n", new_text="changed\n",
+            )
+            self.assertEqual(result["mode"], "line")
+            self.assertEqual(path.read_text(encoding="utf-8"), "one\nchanged\nthree\n")
+
+    def test_anchor_mode_replaces_only_content_between_unique_anchors(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory, "app.txt")
+            path.write_text("before\nold\nafter\n", encoding="utf-8")
+            FileEditTool(WorkspaceSandbox(directory)).invoke(
+                file_path="app.txt", mode="anchor", anchor_before="before\n",
+                anchor_after="after\n", new_text="new\n",
+            )
+            self.assertEqual(path.read_text(encoding="utf-8"), "before\nnew\nafter\n")
+
+    def test_patch_mode_applies_verified_unified_hunk(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory, "app.txt")
+            path.write_text("one\ntwo\nthree\n", encoding="utf-8")
+            FileEditTool(WorkspaceSandbox(directory)).invoke(
+                file_path="app.txt", mode="patch",
+                patch="@@ -1,3 +1,3 @@\n one\n-two\n+changed\n three\n",
+            )
+            self.assertEqual(path.read_text(encoding="utf-8"), "one\nchanged\nthree\n")
+
+    def test_failed_structured_edit_returns_numbered_recovery_excerpt(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            Path(directory, "app.txt").write_text("alpha\nbeta\ngamma\n", encoding="utf-8")
+            edit = next(tool for tool in build_structured_tools(directory) if tool.name == "file_edit")
+            with self.assertRaises(NonUniqueTextError) as raised:
+                edit.invoke({"file_path": "app.txt", "old_text": "missing", "new_text": "new"})
+            recovery = raised.exception.recovery
+            self.assertIn("1: alpha", recovery["excerpt"]["content"])
+            self.assertIn("line", recovery["retry_modes"])
 
     def test_rejects_workspace_escape(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

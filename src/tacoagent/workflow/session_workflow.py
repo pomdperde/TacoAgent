@@ -100,10 +100,14 @@ def run_session_event_stream(
             "type": "task_memory_saved",
             "memory_id": memory["memory_id"],
             "status": memory["status"],
-            "path": ".tacoagent/memory/mem0_qdrant",
-            "backend": "mem0-local-qdrant",
-            "stored": stored_memory.get("mem0_storage", {}).get("stored", False),
-            "deduplicated": stored_memory.get("mem0_storage", {}).get("deduplicated", False),
+            "path": ".tacoagent/memory/external_memory.sqlite3",
+            "backend": "sqlite-detail-store",
+            "stored": stored_memory.get("external_memory_storage", {}).get("stored", False),
+            "semantic_index": {
+                "backend": "mem0-local-qdrant",
+                "stored": stored_memory.get("mem0_storage", {}).get("stored", False),
+                "deduplicated": stored_memory.get("mem0_storage", {}).get("deduplicated", False),
+            },
         }
     if saved_memory_event is not None:
         yield saved_memory_event

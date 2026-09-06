@@ -47,6 +47,12 @@ def _entry_input(state: TacoGraphState) -> str:
 
 def intent_router_node(state: TacoGraphState) -> dict[str, Any]:
     """Use the LLM to choose chat or task workflow; ambiguity defaults to chat."""
+    if state.get("force_workflow"):
+        return {
+            "intent_route": "workflow",
+            "intent_reason": "Workflow route was forced by the evaluation runtime.",
+            "intent_confidence": 1.0,
+        }
     try:
         response = create_model().invoke(
             [

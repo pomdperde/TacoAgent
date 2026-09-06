@@ -12,6 +12,23 @@ from tacoagent.tools import build_structured_tools
 Writer = Callable[[dict[str, Any]], None]
 
 
+def model_usage_event(response: object, *, node: str) -> dict[str, Any]:
+    """Normalize provider-reported model usage for evaluation and tracing."""
+    usage = getattr(response, "usage_metadata", None) or {}
+    metadata = getattr(response, "response_metadata", None) or {}
+    fallback = metadata.get("token_usage", {}) if isinstance(metadata, dict) else {}
+    input_tokens = int(usage.get("input_tokens", fallback.get("prompt_tokens", 0)) or 0)
+    output_tokens = int(usage.get("output_tokens", fallback.get("completion_tokens", 0)) or 0)
+    total_tokens = int(usage.get("total_tokens", fallback.get("total_tokens", 0)) or 0)
+    return {
+        "type": "model_usage",
+        "node": node,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "total_tokens": total_tokens or input_tokens + output_tokens,
+    }
+
+
 class TodoPayload(BaseModel):
     id: str
     content: str
@@ -78,7 +95,7 @@ def build_tools(state: TacoGraphState) -> list[StructuredTool]:
 
 
 def build_read_only_tools(state: TacoGraphState) -> list[StructuredTool]:
-    allowed = {"list_workspace_files", "file_read", "regex_search"}
+    allowed = {"list_workspace_files", "file_read", "regex_search", "memory_get"}
     return [tool for tool in build_tools(state) if tool.name in allowed]
 
 
@@ -130,5 +147,8 @@ def invoke_tool(tool: StructuredTool | None, args: dict[str, Any]) -> object:
     try:
         return tool.invoke(args)
     except Exception as exc:
-        return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
-
+        result = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+        recovery = getattr(exc, "recovery", None)
+        if isinstance(recovery, dict) and recovery:
+            result["recovery"] = recovery
+        return result

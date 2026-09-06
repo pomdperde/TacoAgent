@@ -10,6 +10,7 @@ from .command_run import CommandRunTool
 from .file_create import FileCreateTool
 from .file_edit import FileEditTool, NonUniqueTextError
 from .file_read import FileReadTool
+from .memory_get import MemoryGetTool
 from .factory import build_structured_tools, create_tools
 from .registry import ToolRegistry, build_tool_registry
 from .regex_search import RegexSearchTool
@@ -22,6 +23,7 @@ __all__ = [
     "CommandRunTool",
     "FileEditTool",
     "FileReadTool",
+    "MemoryGetTool",
     "Tool",
     "NonUniqueTextError",
     "RegexSearchTool",

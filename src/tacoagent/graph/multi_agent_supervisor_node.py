@@ -84,7 +84,7 @@ def _call_code_agent_tool(
 def multi_agent_supervisor_node(state: TacoGraphState) -> dict[str, Any]:
     """Supervise planning, research, and implementation through tool handoffs."""
     writer = stream_writer()
-    _memory, todo_tool, planner_input = prepare_planner(
+    todo_tool, planner_input = prepare_planner(
         state,
         node="multi_agent_supervisor",
         include_specialist_context=True,
@@ -100,6 +100,8 @@ def multi_agent_supervisor_node(state: TacoGraphState) -> dict[str, Any]:
     def call_search_agent(instruction: str) -> dict[str, Any]:
         if not plan_written:
             return {"ok": False, "error": "TodoWriteTool must be called before delegation"}
+        if working.get("disable_web_search"):
+            return {"ok": False, "error": "Web search is disabled for this run"}
         return _call_search_agent_tool(working, writer, instruction)
 
     def call_code_agent(instruction: str) -> dict[str, Any]:
@@ -170,4 +172,5 @@ def multi_agent_supervisor_node(state: TacoGraphState) -> dict[str, Any]:
         "messages": output_messages,
         "supervisor_summary": summary,
         "context_next_node": "verifier",
+        "verification_feedback": working.get("verification_feedback", state.get("verification_feedback", {})),
     }

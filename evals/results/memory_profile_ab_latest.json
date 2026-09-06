@@ -1,0 +1,161 @@
+{
+  "experiment": "node-memory-profile-ab-v1",
+  "method": "offline deterministic prompt-input benchmark",
+  "tokenizer": "tiktoken cl100k_base",
+  "repeats_per_node": 200,
+  "fixture": "long graph state + HISTORY_SUMMARY + NOTEPAD + 6 SQLite memory indexes",
+  "cases": [
+    {
+      "node": "single_agent_planner",
+      "before": {
+        "input_tokens": 7354,
+        "payload_chars": 34487,
+        "build_ms_median": 4.5196,
+        "build_ms_p95": 5.7799
+      },
+      "after": {
+        "input_tokens": 838,
+        "payload_chars": 4108,
+        "build_ms_median": 4.2116,
+        "build_ms_p95": 5.3254
+      },
+      "token_reduction": 6516,
+      "token_reduction_percent": 88.6,
+      "median_time_reduction_percent": 6.81
+    },
+    {
+      "node": "multi_agent_supervisor",
+      "before": {
+        "input_tokens": 7354,
+        "payload_chars": 34489,
+        "build_ms_median": 4.3982,
+        "build_ms_p95": 5.8734
+      },
+      "after": {
+        "input_tokens": 838,
+        "payload_chars": 4110,
+        "build_ms_median": 4.7013,
+        "build_ms_p95": 7.0815
+      },
+      "token_reduction": 6516,
+      "token_reduction_percent": 88.6,
+      "median_time_reduction_percent": -6.89
+    },
+    {
+      "node": "actor",
+      "before": {
+        "input_tokens": 7351,
+        "payload_chars": 34472,
+        "build_ms_median": 4.3182,
+        "build_ms_p95": 5.4292
+      },
+      "after": {
+        "input_tokens": 911,
+        "payload_chars": 4493,
+        "build_ms_median": 4.1825,
+        "build_ms_p95": 5.3102
+      },
+      "token_reduction": 6440,
+      "token_reduction_percent": 87.61,
+      "median_time_reduction_percent": 3.14
+    },
+    {
+      "node": "codeAgent",
+      "before": {
+        "input_tokens": 7352,
+        "payload_chars": 34476,
+        "build_ms_median": 4.6368,
+        "build_ms_p95": 6.5525
+      },
+      "after": {
+        "input_tokens": 912,
+        "payload_chars": 4497,
+        "build_ms_median": 4.1505,
+        "build_ms_p95": 4.9286
+      },
+      "token_reduction": 6440,
+      "token_reduction_percent": 87.6,
+      "median_time_reduction_percent": 10.49
+    },
+    {
+      "node": "verifier",
+      "before": {
+        "input_tokens": 7352,
+        "payload_chars": 34475,
+        "build_ms_median": 4.2069,
+        "build_ms_p95": 4.9262
+      },
+      "after": {
+        "input_tokens": 462,
+        "payload_chars": 2409,
+        "build_ms_median": 2.1708,
+        "build_ms_p95": 2.8826
+      },
+      "token_reduction": 6890,
+      "token_reduction_percent": 93.72,
+      "median_time_reduction_percent": 48.4
+    },
+    {
+      "node": "searchAgent",
+      "before": {
+        "input_tokens": 7352,
+        "payload_chars": 34478,
+        "build_ms_median": 4.2337,
+        "build_ms_p95": 5.1673
+      },
+      "after": {
+        "input_tokens": 270,
+        "payload_chars": 1284,
+        "build_ms_median": 0.0245,
+        "build_ms_p95": 0.0297
+      },
+      "token_reduction": 7082,
+      "token_reduction_percent": 96.33,
+      "median_time_reduction_percent": 99.42
+    },
+    {
+      "node": "context_monitor",
+      "before": {
+        "input_tokens": 7352,
+        "payload_chars": 34482,
+        "build_ms_median": 4.2782,
+        "build_ms_p95": 5.2715
+      },
+      "after": {
+        "input_tokens": 324,
+        "payload_chars": 1667,
+        "build_ms_median": 1.1593,
+        "build_ms_p95": 1.4901
+      },
+      "token_reduction": 7028,
+      "token_reduction_percent": 95.59,
+      "median_time_reduction_percent": 72.9
+    },
+    {
+      "node": "context_compressor",
+      "before": {
+        "input_tokens": 7353,
+        "payload_chars": 34485,
+        "build_ms_median": 4.1635,
+        "build_ms_p95": 4.8157
+      },
+      "after": {
+        "input_tokens": 2992,
+        "payload_chars": 15667,
+        "build_ms_median": 2.2185,
+        "build_ms_p95": 3.1496
+      },
+      "token_reduction": 4361,
+      "token_reduction_percent": 59.31,
+      "median_time_reduction_percent": 46.72
+    }
+  ],
+  "aggregate": {
+    "before_input_tokens": 58820,
+    "after_input_tokens": 7547,
+    "token_reduction": 51273,
+    "token_reduction_percent": 87.17,
+    "before_build_ms_median_sum": 34.7551,
+    "after_build_ms_median_sum": 22.819
+  }
+}

@@ -53,7 +53,7 @@ class GraphWorkflowTests(unittest.TestCase):
         self.assertTrue(result["passed"])
         self.assertIn("completed and verified", result["final_answer"])
 
-    def test_failed_verification_retries_from_planner(self) -> None:
+    def test_failed_verification_retries_actor_directly(self) -> None:
         visits: list[str] = []
 
         def planner(_state):
@@ -89,7 +89,7 @@ class GraphWorkflowTests(unittest.TestCase):
 
         self.assertEqual(
             visits,
-            ["planner", "actor", "verifier", "planner", "actor", "verifier"],
+            ["planner", "actor", "verifier", "actor", "verifier"],
         )
         self.assertEqual(result["attempts"], 2)
         self.assertTrue(result["passed"])

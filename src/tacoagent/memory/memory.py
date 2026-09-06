@@ -6,6 +6,8 @@ import hashlib
 import json
 import os
 import re
+import sqlite3
+from contextlib import closing
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
@@ -20,6 +22,7 @@ if TYPE_CHECKING:
 MEM0_QDRANT_PATH = ".tacoagent/memory/mem0_qdrant"
 MEM0_COLLECTION = "tacoagent_task_memories"
 MAX_COMPRESSED_MEMORY = 3200
+EXTERNAL_MEMORY_DB = ".tacoagent/memory/external_memory.sqlite3"
 
 
 def _clean_text(value: object, limit: int) -> str:
@@ -318,6 +321,139 @@ def _memory_root(workspace: str | Path) -> Path:
     return root
 
 
+def _external_memory_path(workspace: str | Path) -> Path:
+    root = Path(workspace).expanduser().resolve()
+    path = root / EXTERNAL_MEMORY_DB
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _external_memory_connection(workspace: str | Path) -> sqlite3.Connection:
+    connection = sqlite3.connect(_external_memory_path(workspace), timeout=10)
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS memories (
+            memory_id TEXT PRIMARY KEY,
+            created_at TEXT NOT NULL,
+            session_id TEXT NOT NULL,
+            session_turn INTEGER NOT NULL,
+            task TEXT NOT NULL,
+            status TEXT NOT NULL,
+            summary_hint TEXT NOT NULL,
+            detail_json TEXT NOT NULL
+        )
+        """
+    )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS idx_memories_created_at ON memories(created_at DESC)"
+    )
+    return connection
+
+
+def store_external_memory(workspace: str | Path, detail: dict[str, Any]) -> dict[str, Any]:
+    """Upsert the complete memory record into the local ID-addressable store."""
+    memory_id = str(detail.get("memory_id", "")).strip()
+    if not memory_id:
+        return {"ok": False, "stored": False, "error": "memory_id is required"}
+    try:
+        with closing(_external_memory_connection(workspace)) as connection:
+            connection.execute(
+                """
+                INSERT INTO memories (
+                    memory_id, created_at, session_id, session_turn,
+                    task, status, summary_hint, detail_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(memory_id) DO UPDATE SET
+                    created_at=excluded.created_at,
+                    session_id=excluded.session_id,
+                    session_turn=excluded.session_turn,
+                    task=excluded.task,
+                    status=excluded.status,
+                    summary_hint=excluded.summary_hint,
+                    detail_json=excluded.detail_json
+                """,
+                (
+                    memory_id,
+                    str(detail.get("created_at", "")),
+                    str(detail.get("session_id", "")),
+                    int(detail.get("session_turn", 0) or 0),
+                    str(detail.get("task", "")),
+                    str(detail.get("status", "")),
+                    _clean_text(detail.get("summary", ""), 240),
+                    json.dumps(detail, ensure_ascii=False, default=str),
+                ),
+            )
+            connection.commit()
+    except (OSError, sqlite3.Error) as exc:
+        return {"ok": False, "stored": False, "error": f"{type(exc).__name__}: {exc}"}
+    return {"ok": True, "stored": True, "memory_id": memory_id, "path": EXTERNAL_MEMORY_DB}
+
+
+def get_external_memory(workspace: str | Path, memory_id: str) -> dict[str, Any]:
+    """Fetch one complete memory by its stable ID without semantic inference."""
+    identifier = str(memory_id).strip()
+    if not identifier:
+        return {"ok": False, "error": "memory_id is required"}
+    if not (Path(workspace).expanduser().resolve() / EXTERNAL_MEMORY_DB).is_file():
+        return {"ok": False, "error": f"Unknown memory_id: {identifier}"}
+    try:
+        with closing(_external_memory_connection(workspace)) as connection:
+            row = connection.execute(
+                "SELECT detail_json FROM memories WHERE memory_id = ?", (identifier,)
+            ).fetchone()
+    except (OSError, sqlite3.Error) as exc:
+        return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+    if row is None:
+        return {"ok": False, "error": f"Unknown memory_id: {identifier}"}
+    try:
+        detail = json.loads(row[0])
+    except json.JSONDecodeError:
+        return {"ok": False, "error": f"Corrupt memory record: {identifier}"}
+    return {"ok": True, "memory_id": identifier, "detail": detail}
+
+
+def load_external_memory_index(
+    workspace: str | Path, *, limit: int = 6, memory_ids: list[str] | None = None
+) -> list[dict[str, Any]]:
+    """Load prompt-safe metadata; detailed payloads remain outside model context."""
+    if limit <= 0:
+        return []
+    if not (Path(workspace).expanduser().resolve() / EXTERNAL_MEMORY_DB).is_file():
+        return []
+    try:
+        with closing(_external_memory_connection(workspace)) as connection:
+            if memory_ids:
+                ordered_ids = list(dict.fromkeys(str(item) for item in memory_ids if item))[:limit]
+                placeholders = ",".join("?" for _ in ordered_ids)
+                rows = connection.execute(
+                    f"SELECT memory_id, created_at, task, status, summary_hint "
+                    f"FROM memories WHERE memory_id IN ({placeholders})",
+                    ordered_ids,
+                ).fetchall()
+                by_id = {row[0]: row for row in rows}
+                rows = [by_id[item] for item in ordered_ids if item in by_id]
+            else:
+                rows = connection.execute(
+                    "SELECT memory_id, created_at, task, status, summary_hint "
+                    "FROM memories ORDER BY created_at DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+    except (OSError, sqlite3.Error):
+        return []
+    return [
+        {
+            "memory_id": row[0],
+            "created_at": row[1],
+            "task": row[2],
+            "status": row[3],
+            "summary_hint": row[4],
+            "detail_available": True,
+            "detail_tool": "memory_get",
+        }
+        for row in rows
+    ]
+
+
 def _markdown(summary: dict[str, Any]) -> str:
     lines = [
         "# Latest TacoAgent Task Memory",
@@ -377,6 +513,7 @@ def save_task_summary(workspace: str | Path, summary: dict[str, Any]) -> dict[st
         "deduplicated": bool(mem0_result.get("deduplicated")),
         "error": str(mem0_result.get("error", "")),
     }
+    stored["external_memory_storage"] = store_external_memory(workspace, stored)
     with (root / TASK_MEMORY_FILE).open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(stored, ensure_ascii=False, default=str) + "\n")
     (root / LATEST_TASK_SUMMARY_FILE).write_text(_markdown(stored), encoding="utf-8")
@@ -414,8 +551,72 @@ RULES_LAYER = {
         "Use paths relative to the workspace; do not prefix paths with workspace/.",
         "Keep durable task context outside the raw messages transcript when possible.",
         "Treat TODO.md as working plan state, NOTEPAD.md as durable notes, HISTORY_SUMMARY.md as compressed history, and .tacoagent/memory as external task memory.",
+        "Recent task memories are lightweight indexes; call memory_get with an exact memory_id only when detailed prior context is relevant.",
         "Do not expose memory write tools to agents; layered memory is assembled by the runtime.",
     ],
+}
+
+
+MEMORY_NODE_PROFILES: dict[str, dict[str, Any]] = {
+    "single_agent_planner": {
+        "working": {"session_id", "session_turn", "attempts", "max_attempts"},
+        "history": 700,
+        "notepad": 500,
+        "external_index": 4,
+    },
+    "multi_agent_supervisor": {
+        "working": {"session_id", "session_turn", "attempts", "max_attempts"},
+        "history": 700,
+        "notepad": 500,
+        "external_index": 4,
+    },
+    "actor": {
+        "working": {"session_id", "session_turn", "attempts", "max_attempts"},
+        "history": 800,
+        "notepad": 700,
+        "external_index": 4,
+    },
+    "codeAgent": {
+        "working": {"session_id", "session_turn", "attempts", "max_attempts"},
+        "history": 800,
+        "notepad": 700,
+        "external_index": 4,
+    },
+    "verifier": {
+        "working": {"session_id", "session_turn", "attempts", "max_attempts"},
+        "history": 400,
+        "notepad": 300,
+        "external_index": 0,
+    },
+    "searchAgent": {
+        "working": {"session_id", "session_turn"},
+        "history": 0,
+        "notepad": 0,
+        "external_index": 0,
+    },
+    "context_monitor": {
+        "working": {"attempts", "max_attempts"},
+        "history": 200,
+        "notepad": 0,
+        "external_index": 0,
+    },
+    "context_compressor": {
+        "working": {
+            "session_id", "session_turn", "plan_summary", "todos",
+            "acceptance_criteria", "verification_commands", "last_error",
+            "attempts", "max_attempts",
+        },
+        "history": 1200,
+        "notepad": 1000,
+        "external_index": 0,
+    },
+}
+
+DEFAULT_MEMORY_PROFILE = {
+    "working": {"session_id", "session_turn", "attempts", "max_attempts", "last_error"},
+    "history": 600,
+    "notepad": 500,
+    "external_index": 4,
 }
 
 
@@ -455,19 +656,56 @@ def read_history_summary(runtime: RuntimeState) -> dict[str, Any]:
     return _read_memory_file(runtime, "HISTORY_SUMMARY.md")
 
 
+def recall_external_memory_index(
+    workspace: str | Path,
+    query: str,
+    *,
+    session_id: str = "",
+    limit: int = 4,
+    semantic: bool = False,
+) -> list[dict[str, Any]]:
+    """Resolve relevant IDs without loading detailed JSONL memory records."""
+    if limit <= 0:
+        return []
+    recalled = search_mem0_task_memories(
+        workspace, query, session_id=session_id, limit=limit
+    ) if semantic and query.strip() else []
+    recalled_ids = [str(item.get("memory_id", "")) for item in recalled]
+    return load_external_memory_index(
+        workspace, limit=limit, memory_ids=recalled_ids
+    ) or load_external_memory_index(workspace, limit=limit)
+
+
 def build_layered_memory(state: TacoGraphState, *, node: str = "graph") -> LayeredMemory:
     runtime = state.get("runtime")
     if runtime is None:
         raise ValueError("Graph state is missing runtime")
-    notepad = read_notepad(runtime)
-    history = read_history_summary(runtime)
-    task_memories = load_task_summaries(
+    profile = MEMORY_NODE_PROFILES.get(node, DEFAULT_MEMORY_PROFILE)
+    if state.get("memory_profile_mode") == "legacy-uniform":
+        profile = {
+            "working": {
+                "task", "session_id", "session_turn", "plan_summary", "todos",
+                "acceptance_criteria", "verification_commands", "research_notes",
+                "sources", "agent_handoffs", "code_agent_summary",
+                "verifier_summary", "last_error", "attempts", "max_attempts",
+            },
+            "history": 2200,
+            "notepad": 1800,
+            "external_index": 6,
+        }
+    history_limit = int(profile["history"])
+    notepad_limit = int(profile["notepad"])
+    index_limit = int(profile["external_index"])
+    notepad = read_notepad(runtime) if notepad_limit else {"exists": False, "content": ""}
+    history = read_history_summary(runtime) if history_limit else {"exists": False, "content": ""}
+    task_memories = recall_external_memory_index(
         runtime.workspace,
-        limit=6,
-        query=str(state.get("task", "")),
+        str(state.get("task", "")),
         session_id=str(state.get("session_id", "")),
+        limit=index_limit,
+        semantic=bool(state.get("memory_semantic_recall", False)),
     )
-    working_memory = {
+    working_candidates = {
         "node": node,
         "task": state.get("task", ""),
         "session_id": state.get("session_id", ""),
@@ -489,28 +727,30 @@ def build_layered_memory(state: TacoGraphState, *, node: str = "graph") -> Layer
         "attempts": state.get("attempts", 0),
         "max_attempts": state.get("max_attempts", 3),
     }
+    working_memory = {"node": node}
+    working_memory.update({
+        key: value
+        for key, value in working_candidates.items()
+        if key in profile["working"] and value not in ("", [], {}, None)
+        and not (key == "session_turn" and value == 0)
+    })
     history_store = {
         "history_path": "HISTORY_SUMMARY.md",
         "history_exists": history.get("exists", False),
-        "history_summary": _short_text(history.get("content", ""), 2200),
+        "history_summary": _short_text(history.get("content", ""), history_limit),
         "notepad_path": "NOTEPAD.md",
         "notepad_exists": notepad.get("exists", False),
-        "notepad": _short_text(notepad.get("content", ""), 1800),
-        "context_summary": _short_text(state.get("context_summary", ""), 1600),
-        "compression_events": state.get("compression_events", [])[-3:],
-        "external_memory_path": MEM0_QDRANT_PATH,
-        "external_memory_backend": "mem0-local-qdrant",
-        "recent_task_memories": [
-            {
-                "memory_id": item.get("memory_id", ""),
-                "created_at": item.get("created_at", ""),
-                "task": _short_text(item.get("task", ""), 500),
-                "summary": _short_text(item.get("summary", ""), 800),
-                "status": item.get("status", ""),
-                "important_files": item.get("important_files", [])[:10],
-            }
-            for item in task_memories
-        ],
+        "notepad": _short_text(notepad.get("content", ""), notepad_limit),
+        "context_summary": _short_text(
+            state.get("context_summary", ""),
+            1600 if state.get("memory_profile_mode") == "legacy-uniform" else history_limit,
+        ),
+        "compression_events": state.get("compression_events", [])[(-3 if state.get("memory_profile_mode") == "legacy-uniform" else -1):],
+        "external_memory_path": EXTERNAL_MEMORY_DB,
+        "external_memory_backend": "sqlite-detail-store+optional-mem0-index",
+        "external_memory_detail_path": EXTERNAL_MEMORY_DB,
+        "semantic_index_path": MEM0_QDRANT_PATH,
+        "recent_task_memories": task_memories,
     }
     return {
         "rules": dict(RULES_LAYER),

@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage
 
 from tacoagent.core.runtime import RuntimeState
 from tacoagent.graph.context_monitor_node import context_monitor_node, context_monitor_route
@@ -26,6 +26,24 @@ class BrokenCountingModel:
 
 
 class ContextMonitorTests(unittest.TestCase):
+    def test_uses_latest_provider_usage_as_incremental_anchor(self) -> None:
+        anchor = AIMessage(
+            content="answer",
+            usage_metadata={"input_tokens": 80, "output_tokens": 20, "total_tokens": 100},
+        )
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "tacoagent.graph.context_monitor_node.create_model"
+        ) as create:
+            result = context_monitor_node({
+                "runtime": RuntimeState(directory),
+                "messages": [HumanMessage(content="old"), anchor, HumanMessage(content="x" * 40)],
+                "context_token_limit": 1000,
+            })
+
+        create.assert_not_called()
+        self.assertEqual(result["context_token_count_source"], "provider_usage_anchor")
+        self.assertGreater(result["context_token_count"], 110)
+
     def test_uses_model_token_counter_with_layered_memory_message(self) -> None:
         model = CountingModel(125)
         with tempfile.TemporaryDirectory() as directory, patch(
@@ -36,13 +54,14 @@ class ContextMonitorTests(unittest.TestCase):
                     "runtime": RuntimeState(directory),
                     "messages": [HumanMessage(content="task")],
                     "context_token_limit": 100,
-                    "context_next_node": "planner",
+                    "context_next_node": "actor",
                 }
             )
 
         self.assertEqual(result["context_token_count"], 125)
+        self.assertEqual(result["context_token_count_source"], "model_tokenizer")
         self.assertTrue(result["context_should_compress"])
-        self.assertEqual(result["context_next_node"], "planner")
+        self.assertEqual(result["context_next_node"], "actor")
         self.assertEqual(len(model.messages), 2)
         self.assertIn("Layered memory snapshot", model.messages[-1].content)
 
@@ -69,13 +88,14 @@ class ContextMonitorTests(unittest.TestCase):
         )
         self.assertEqual(
             context_monitor_route(
-                {"passed": False, "context_should_compress": True, "context_next_node": "planner"}
+                {"passed": False, "context_should_compress": True, "context_next_node": "actor"}
             ),
             "context_compressor",
         )
         self.assertEqual(
-            context_monitor_route({"context_next_node": "planner"}), "planner"
+            context_monitor_route({"context_next_node": "actor"}), "actor"
         )
+        self.assertEqual(context_monitor_route({"context_next_node": "obsolete"}), "verifier")
         self.assertEqual(context_monitor_route({}), "verifier")
 
 

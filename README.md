@@ -1,13 +1,27 @@
 # TacoAgent
 
+## Documentation
+
+- [Project summary (2026-09-01)](docs/TACOAGENT_PROJECT_SUMMARY_2026-09-01.md)
+- [Single-agent SWE-bench Verified rerun (2026-09-01)](docs/SWE_BENCH_SINGLE_AGENT_RERUN_2026-09-01.md)
+- [Workflow architecture and selection](docs/WORKFLOWS.md)
+- [ReAct SWE-bench Verified smoke report (2026-08-28)](docs/SWE_BENCH_REACT_SMOKE_2026-08-28.md)
+- [Single-agent SWE-bench Verified smoke report (2026-08-28)](docs/SWE_BENCH_SINGLE_AGENT_SMOKE_2026-08-28.md)
+- [Full single-agent SWE-bench smoke without planner fallback (2026-08-29)](docs/SWE_BENCH_SINGLE_AGENT_FULL_2026-08-29.md)
+- [Full single-agent SWE-bench smoke with 300-second budget (2026-08-29)](docs/SWE_BENCH_SINGLE_AGENT_FULL_300S_2026-08-29.md)
+- [Single-agent convergence changes and SWE-bench rerun (2026-08-30)](docs/SWE_BENCH_SINGLE_AGENT_CONVERGENCE_2026-08-30.md)
+- [Single-agent 10-minute SWE-bench experiment (2026-08-30)](docs/SWE_BENCH_SINGLE_AGENT_10MIN_2026-08-30.md)
+- [Default 10-minute single-agent reproduction (2026-08-30)](docs/SWE_BENCH_SINGLE_AGENT_DEFAULT_10MIN_2026-08-30.md)
+- [Verifier reliability improvements (2026-08-30)](docs/VERIFIER_IMPROVEMENTS_2026-08-30.md)
+- [10-case SWE-bench verifier-v2 experiment (2026-08-30)](docs/SWE_BENCH_SINGLE_AGENT_VERIFIER_V2_10_CASES_2026-08-30.md)
+
 TacoAgent is a compact starter project for building terminal agents with Typer
 and Rich. It includes a workspace-scoped agent, one-shot task execution,
 interactive chat, and a small test suite.
 
-Normal tasks run through a `ChatOpenAI.bind_tools()` ReAct loop. The CLI streams
-tool arguments and results as they happen, reports each tool's duration, and
-shows per-response plus accumulated token usage. Use `--max-loops` to bound the
-number of model iterations.
+Normal tasks use the `single-agent` graph workflow by default. The CLI can also
+select `multi-agent` or the lightweight `react` tool loop, and streams node,
+tool, verification, and final-answer events while the selected workflow runs.
 
 ## Install
 
@@ -23,9 +37,9 @@ taco chat
 taco info
 ```
 
-The default backend is intentionally local and deterministic. Replace
-`tacoagent.core.agent.TacoAgent._respond()` with an LLM/provider implementation while keeping the CLI
-and session interfaces unchanged.
+The model backend is configured through `.env` and created with
+`langchain_openai.ChatOpenAI`; file and command operations remain scoped to the
+selected workspace.
 
 Future agent tools belong in `src/tacoagent/tools/`. Implement the `Tool`
 protocol and register instances with `build_tool_registry()`.
@@ -59,3 +73,4 @@ LangChain `StructuredTool` instances ready for `model.bind_tools(...)`.
 Copy `.env.example` to `.env`, set `OPENAI_API_KEY`, and call
 `tacoagent.create_model()`. The factory loads `.env` with `python-dotenv` and
 returns `langchain_openai.ChatOpenAI`; `OPENAI_MODEL` defaults to `gpt-4o-mini`.
+# TacoAgent

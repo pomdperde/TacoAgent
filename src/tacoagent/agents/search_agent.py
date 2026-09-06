@@ -7,7 +7,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
 from tacoagent.core.model import create_model
 from tacoagent.graph.state import TacoGraphState
-from tacoagent.memory import build_layered_memory, format_layered_memory_for_prompt, memory_event
+from tacoagent.memory import build_layered_memory, memory_event
 from tacoagent.prompt.graph_prompt import SEARCH_AGENT_PROMPT
 from tacoagent.tools.web_search_tool import WebSearchTool
 
@@ -47,7 +47,7 @@ def run_search_agent(
         "instruction": instruction,
         "existing_research_notes": state.get("research_notes", ""),
         "existing_sources": state.get("sources", []),
-        "layered_memory": format_layered_memory_for_prompt(memory) if memory else "",
+        "layered_memory": memory or {},
     }
     messages: list[Any] = [
         SystemMessage(content=SEARCH_AGENT_PROMPT),

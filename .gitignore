@@ -8,3 +8,6 @@ build/
 workspace/
 .deepeval/
 .tacoagent/
+evals/results/swebench-smoke/
+.swe-official/
+logs/

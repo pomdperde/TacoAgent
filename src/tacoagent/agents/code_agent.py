@@ -9,7 +9,8 @@ from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from tacoagent.core.model import create_model
 from tacoagent.graph.node_utils import build_todo_update_tool, build_tools
 from tacoagent.graph.state import TacoGraphState, TodoItem
-from tacoagent.memory import build_layered_memory, format_layered_memory_for_prompt, memory_event
+from tacoagent.graph.patch_status import inspect_workspace_patch
+from tacoagent.memory import build_layered_memory, memory_event
 from tacoagent.prompt.graph_prompt import CODE_AGENT_PROMPT
 
 
@@ -78,7 +79,10 @@ def run_code_agent(
         "task": state.get("task", ""),
         "instruction": instruction,
         "session_context": state.get("session_context", ""),
-        "memory": format_layered_memory_for_prompt(memory),
+        "research_notes": state.get("research_notes", ""),
+        "sources": state.get("sources", []),
+        "verification_feedback": state.get("verification_feedback", {}),
+        "memory": memory,
     }
     messages: list[Any] = [
         SystemMessage(content=CODE_AGENT_PROMPT),
@@ -86,6 +90,8 @@ def run_code_agent(
     ]
     tool_events: list[dict[str, Any]] = []
     summary = ""
+    evidence_calls_after_change = 0
+    convergence_limit = max(1, int(state.get("actor_convergence_limit", 4)))
 
     for _ in range(max_loops):
         response = agent.invoke(messages)
@@ -121,6 +127,19 @@ def run_code_agent(
                     name=name,
                 )
             )
+            patch_status = inspect_workspace_patch(state["runtime"].workspace)
+            emit({"type": "patch_status", **patch_status})
+            if patch_status.get("production_files_changed") and name in {
+                "file_read", "regex_search", "list_workspace_files", "command_run"
+            }:
+                evidence_calls_after_change += 1
+        if evidence_calls_after_change >= convergence_limit:
+            messages.append(HumanMessage(content=(
+                "A meaningful implementation change exists. Stop broad exploration. "
+                "Use current verification evidence for one focused correction, remove "
+                "temporary artifacts, run the smallest relevant check, and finalize."
+            )))
+            emit({"type": "convergence_required", "node": "codeAgent"})
 
     return {
         "ok": True,
@@ -128,4 +147,5 @@ def run_code_agent(
         "todos": todos,
         "messages": messages,
         "tool_events": tool_events,
+        "patch_status": inspect_workspace_patch(state["runtime"].workspace),
     }

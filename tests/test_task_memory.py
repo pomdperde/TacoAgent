@@ -11,6 +11,8 @@ from tacoagent.memory import (
     TASK_MEMORY_ROOT,
     build_layered_memory,
     generate_task_summary,
+    get_external_memory,
+    load_external_memory_index,
     load_task_summaries,
     save_task_summary,
 )
@@ -55,7 +57,29 @@ class TaskMemoryTests(unittest.TestCase):
             self.assertEqual(loaded[-1]["important_files"], ["app.py"])
             self.assertEqual(loaded[-1]["tools_used"], ["file_create", "command_run"])
             self.assertTrue((root / TASK_MEMORY_FILE).is_file())
+            self.assertTrue((root / "external_memory.sqlite3").is_file())
             self.assertIn("App created", (root / LATEST_TASK_SUMMARY_FILE).read_text(encoding="utf-8"))
+            detail = get_external_memory(directory, summary["memory_id"])
+            self.assertTrue(detail["ok"])
+            self.assertEqual(detail["detail"]["important_files"], ["app.py"])
+
+    def test_external_memory_index_is_lightweight_and_id_addressable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            summary = generate_task_summary("large task", [], final_answer="detailed result")
+            summary["research_blob"] = "x" * 20_000
+            save_task_summary(directory, summary)
+            index = load_external_memory_index(directory)
+            detail = get_external_memory(directory, index[0]["memory_id"])
+
+        self.assertNotIn("research_blob", index[0])
+        self.assertEqual(index[0]["detail_tool"], "memory_get")
+        self.assertEqual(detail["detail"]["research_blob"], "x" * 20_000)
+
+    def test_unknown_external_memory_id_returns_value_error_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = get_external_memory(directory, "memory-missing")
+        self.assertFalse(result["ok"])
+        self.assertIn("Unknown memory_id", result["error"])
 
     def test_layered_memory_reads_external_task_summaries(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -67,7 +91,8 @@ class TaskMemoryTests(unittest.TestCase):
 
         records = memory["history_summary_store"]["recent_task_memories"]
         self.assertEqual(records[-1]["task"], "prior task")
-        self.assertEqual(records[-1]["summary"], "prior result")
+        self.assertEqual(records[-1]["summary_hint"], "prior result")
+        self.assertEqual(records[-1]["detail_tool"], "memory_get")
 
     def test_loader_skips_corrupt_external_records(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

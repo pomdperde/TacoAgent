@@ -25,7 +25,11 @@ taco = "tacoagent.cli.app:main"
 tacoagent = "tacoagent.cli.app:main"
 
 [project.optional-dependencies]
-evaluation = ["deepeval>=4.1,<5"]
+evaluation = ["deepeval>=4.1,<5", "langsmith>=0.3.13"]
+swebench = ["datasets>=2.14", "swebench"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tacoagent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

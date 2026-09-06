@@ -95,16 +95,23 @@ class CodeAgentTests(unittest.TestCase):
         self.assertIn("[x] todo-1", todo_text)
         self.assertEqual(
             [event["type"] for event in written],
-            ["memory_snapshot", "tool_call", "tool_result", "tool_call", "tool_result"],
+            [
+                "memory_snapshot",
+                "tool_call",
+                "tool_result",
+                "patch_status",
+                "tool_call",
+                "tool_result",
+                "patch_status",
+            ],
         )
         self.assertTrue(any(isinstance(message, ToolMessage) for message in result["messages"]))
         human = next(message for message in result["messages"] if isinstance(message, HumanMessage))
         context = json.loads(human.content)
         self.assertEqual(context["session_context"], "user requested tests")
-        memory = json.loads(context["memory"])
-        self.assertEqual(
-            memory["working_memory"]["research_notes"], "official recommendation"
-        )
+        memory = context["memory"]
+        self.assertNotIn("research_notes", memory["working_memory"])
+        self.assertEqual(context["research_notes"], "official recommendation")
         self.assertIn("TodoUpdateTool", {tool.name for tool in model.bound_tools})
 
 

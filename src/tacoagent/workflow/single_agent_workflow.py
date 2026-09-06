@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Callable, Iterator
 from time import perf_counter
+from time import monotonic
 
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, START, StateGraph
@@ -22,7 +23,7 @@ from tacoagent.graph.entry_nodes import chat_responder_node, intent_route_fn, in
 
 
 def _node_instruction(name: str, state: TacoGraphState) -> str:
-    if name in {"planner", "single_agent_planner", "multi_agent_supervisor"}:
+    if name in {"single_agent_planner", "multi_agent_supervisor"}:
         return str(state.get("last_error") or state.get("task", ""))
     if name == "actor":
         return str(state.get("plan_summary", ""))
@@ -131,20 +132,19 @@ def build_workflow() -> CompiledStateGraph:
             "context_compressor": "context_compressor",
             "actor": "actor",
             "verifier": "verifier",
-            "planner": "single_agent_planner",
             "final": "final",
         },
     )
     graph.add_conditional_edges(
         "context_compressor",
         context_compressor_route,
-        {"actor": "actor", "verifier": "verifier", "planner": "single_agent_planner", "final": "final"},
+        {"actor": "actor", "verifier": "verifier", "final": "final"},
     )
     graph.add_edge("actor", "verifier")
     graph.add_conditional_edges(
         "verifier",
         verifier_route,
-        {"planner": "single_agent_planner", "final": "final"},
+        {"actor": "actor", "final": "final"},
     )
     graph.add_edge("final", END)
 
@@ -159,6 +159,19 @@ def stream_workflow_events(
     session_context: str = "",
     session_id: str = "",
     session_turn: int = 0,
+    force_workflow: bool = False,
+    require_production_patch: bool = False,
+    planner_time_budget_seconds: int = 60,
+    actor_time_budget_seconds: int = 300,
+    actor_phase_time_budgets: dict[str, int] | None = None,
+    actor_phase_token_budgets: dict[str, int] | None = None,
+    verifier_time_budget_seconds: int = 120,
+    total_time_budget_seconds: int = 600,
+    context_token_limit: int = 400_000,
+    context_reserve_tokens: int = 16_384,
+    context_keep_recent_tokens: int = 20_000,
+    memory_profile_mode: str = "node-trimmed",
+    verification_docker_image: str = "",
 ) -> Iterator[dict[str, Any]]:
     """Run the compiled graph and expose stable events for CLI consumers."""
     task = task.strip()
@@ -166,6 +179,14 @@ def stream_workflow_events(
         raise ValueError("Task must not be empty")
     if max_attempts <= 0:
         raise ValueError("max_attempts must be greater than zero")
+    if context_token_limit <= 0:
+        raise ValueError("context_token_limit must be greater than zero")
+    if not 0 <= context_reserve_tokens < context_token_limit:
+        raise ValueError("context_reserve_tokens must be between zero and context_token_limit")
+    if context_keep_recent_tokens < 0:
+        raise ValueError("context_keep_recent_tokens must not be negative")
+    if memory_profile_mode not in {"node-trimmed", "legacy-uniform"}:
+        raise ValueError("memory_profile_mode must be node-trimmed or legacy-uniform")
 
     runtime = RuntimeState(workspace)
     recorder = WorkflowEventRecorder(runtime, task=task)
@@ -180,6 +201,26 @@ def stream_workflow_events(
         "session_context": session_context,
         "session_id": session_id,
         "session_turn": session_turn,
+        "force_workflow": force_workflow,
+        # The configured OpenAI-compatible endpoint regularly needs more than
+        # 60 seconds for long SWE-bench prompts. This is a request ceiling;
+        # the benchmark runner still owns the hard per-instance deadline.
+        "planner_time_budget_seconds": planner_time_budget_seconds,
+        "actor_time_budget_seconds": actor_time_budget_seconds,
+        "actor_phase_time_budgets": actor_phase_time_budgets or {},
+        "actor_phase_token_budgets": actor_phase_token_budgets or {},
+        "actor_investigation_limit": 6,
+        "actor_convergence_limit": 4,
+        "actor_finalize_reserve_seconds": max(15, min(60, actor_time_budget_seconds // 10)),
+        "verifier_time_budget_seconds": verifier_time_budget_seconds,
+        "run_deadline_monotonic": monotonic() + max(1, total_time_budget_seconds),
+        "verifier_reserve_seconds": verifier_time_budget_seconds,
+        "require_production_patch": require_production_patch,
+        "context_token_limit": context_token_limit,
+        "context_reserve_tokens": context_reserve_tokens,
+        "context_keep_recent_tokens": context_keep_recent_tokens,
+        "memory_profile_mode": memory_profile_mode,
+        "verification_docker_image": verification_docker_image,
     }
     for mode, event in build_workflow().stream(
         inputs, stream_mode=["updates", "custom"]

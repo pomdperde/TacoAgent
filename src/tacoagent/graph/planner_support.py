@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Any
 
 from langchain_core.tools import StructuredTool
 
 from tacoagent.graph.node_utils import build_todo_write_tool, invoke_tool, stream_writer
 from tacoagent.graph.state import TacoGraphState
-from tacoagent.memory import build_layered_memory, format_layered_memory_for_prompt, memory_event
+from tacoagent.memory import build_layered_memory, memory_event
 
 
 def prepare_planner(
@@ -14,23 +15,25 @@ def prepare_planner(
     *,
     node: str,
     include_specialist_context: bool = False,
-) -> tuple[dict[str, Any], StructuredTool, dict[str, Any]]:
+) -> tuple[StructuredTool, dict[str, Any]]:
     """Build the memory snapshot, Todo tool, and shared planner input."""
     memory = build_layered_memory(state, node=node)
     stream_writer()(memory_event(memory, node=node))
+    prompt_memory = deepcopy(memory)
+    prompt_memory.get("working_memory", {})["task"] = "(see top-level task)"
     planner_input: dict[str, Any] = {
         "task": state.get("task", ""),
         "current_plan": state.get("plan_summary", ""),
         "todos": state.get("todos", []),
         "last_error": state.get("last_error", ""),
-        "layered_memory": format_layered_memory_for_prompt(memory),
+        "layered_memory": prompt_memory,
     }
     if include_specialist_context:
         planner_input.update(
             research_notes=state.get("research_notes", ""),
             sources=state.get("sources", []),
         )
-    return memory, build_todo_write_tool(), planner_input
+    return build_todo_write_tool(), planner_input
 
 
 def execute_plan_call(
