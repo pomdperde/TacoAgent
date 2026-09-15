@@ -1,0 +1,15 @@
+{
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "workflow_mode": "react",
+  "model": "unknown-model",
+  "requested": 5,
+  "processed": 5,
+  "skipped": 0,
+  "statuses": {
+    "completed": 1,
+    "no_patch": 4
+  },
+  "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\react-5-proxy-20260828\\predictions.jsonl",
+  "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\react-5-proxy-20260828\\results.jsonl",
+  "created_at": "2026-08-28T12:13:34.600319+00:00"
+}

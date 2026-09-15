@@ -1,0 +1,15 @@
+{
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "workflow_mode": "single-agent",
+  "model": "deepseek-v4-pro",
+  "memory_profile": "legacy-uniform",
+  "requested": 1,
+  "processed": 1,
+  "skipped": 0,
+  "statuses": {
+    "failed": 1
+  },
+  "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\predictions.jsonl",
+  "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\results.jsonl",
+  "created_at": "2026-09-02T09:27:08.809576+00:00"
+}

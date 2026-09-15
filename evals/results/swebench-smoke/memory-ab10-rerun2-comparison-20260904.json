@@ -1,0 +1,34 @@
+{
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "instances_per_group": 10,
+  "model": "deepseek-v4-pro",
+  "legacy_uniform": {
+    "duration_seconds_total": 1965.279,
+    "duration_seconds_average": 196.528,
+    "duration_seconds_median": 240.331,
+    "input_tokens": 727170,
+    "output_tokens": 74914,
+    "total_tokens": 802084,
+    "model_calls": 70,
+    "tokens_per_call": 11458.3,
+    "statuses": {"completed": 1, "no_patch": 2, "timed_out": 6, "failed": 1}
+  },
+  "node_trimmed": {
+    "duration_seconds_total": 2072.252,
+    "duration_seconds_average": 207.225,
+    "duration_seconds_median": 240.408,
+    "input_tokens": 828555,
+    "output_tokens": 81308,
+    "total_tokens": 909863,
+    "model_calls": 67,
+    "tokens_per_call": 13580.0,
+    "statuses": {"completed": 1, "no_patch": 1, "timed_out": 7, "failed": 1}
+  },
+  "trimmed_change_percent": {
+    "duration_total": 5.44,
+    "input_tokens": 13.94,
+    "total_tokens": 13.44,
+    "tokens_per_call": 18.52
+  },
+  "interpretation": "This live rerun does not show an end-to-end token or latency reduction. Stochastic tool trajectories and timeout censoring dominate the isolated memory-profile effect."
+}

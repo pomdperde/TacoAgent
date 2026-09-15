@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "status": "finished",
+  "run_id": "memory-ab-trimmed-1-20260902",
+  "workflow_mode": "single-agent",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "started_at": "2026-09-02T09:27:41.698367+00:00",
+  "configuration": {
+    "limit": 5,
+    "instance_ids": [
+      "astropy__astropy-13033"
+    ],
+    "max_attempts": 1,
+    "instance_timeout": 300,
+    "planner_time_budget": 60,
+    "actor_time_budget": 150,
+    "verifier_time_budget": 60,
+    "resume": false,
+    "memory_profile": "node-trimmed"
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902",
+    "report": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902\\evaluation_report.json",
+    "results": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902\\results.jsonl",
+    "predictions": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902\\predictions.jsonl",
+    "events": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902\\events",
+    "workspaces": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902\\workspaces"
+  },
+  "smoke_summary": {
+    "dataset": "princeton-nlp/SWE-bench_Verified",
+    "workflow_mode": "single-agent",
+    "model": "deepseek-v4-pro",
+    "memory_profile": "node-trimmed",
+    "requested": 1,
+    "processed": 1,
+    "skipped": 0,
+    "statuses": {
+      "failed": 1
+    },
+    "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902\\predictions.jsonl",
+    "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902\\results.jsonl",
+    "created_at": "2026-09-02T09:28:08.660459+00:00"
+  },
+  "metrics": {
+    "instances": 1,
+    "statuses": {
+      "failed": 1
+    },
+    "patches_generated": 0,
+    "duration_seconds_total": 10.486,
+    "duration_seconds_average": 10.486,
+    "tool_calls": 0,
+    "events": 0,
+    "verifier_passed": 0,
+    "token_usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    }
+  },
+  "results": [
+    {
+      "instance_id": "astropy__astropy-13033",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "failed",
+      "duration_seconds": 10.486,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "RuntimeError: git checkout --detach FETCH_HEAD failed: fatal: unable to access 'https://github.com/astropy/astropy.git/': schannel: failed to receive handshake, SSL/TLS connection failed\nfatal: could not fetch e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 from promisor remote",
+      "event_count": 0,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-trimmed-1-20260902\\workspaces\\astropy__astropy-13033",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    }
+  ],
+  "prediction_summaries": [
+    {
+      "instance_id": "astropy__astropy-13033",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "langsmith": {
+    "requested": false
+  },
+  "official_harness": {
+    "requested": false,
+    "officially_graded": false
+  },
+  "ended_at": "2026-09-02T09:28:08.683530+00:00",
+  "duration_seconds": 26.985
+}

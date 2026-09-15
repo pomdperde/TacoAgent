@@ -1,0 +1,14 @@
+{
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "workflow_mode": "single-agent",
+  "model": "deepseek-v4-pro",
+  "requested": 5,
+  "processed": 5,
+  "skipped": 0,
+  "statuses": {
+    "timed_out": 5
+  },
+  "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-full-300s-5-20260829\\predictions.jsonl",
+  "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-full-300s-5-20260829\\results.jsonl",
+  "created_at": "2026-08-29T14:39:10.211124+00:00"
+}

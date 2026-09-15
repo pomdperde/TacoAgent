@@ -1,0 +1,10 @@
+{"instance_id": "astropy__astropy-12907", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-13033", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-13236", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-13398", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-13453", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-13579", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-13977", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-14096", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-14182", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": ""}
+{"instance_id": "astropy__astropy-14309", "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro", "model_patch": "diff --git a/astropy/io/fits/connect.py b/astropy/io/fits/connect.py\nindex 4b6150f4ace823293388dc9ba350bc3117e5b837..4bcb849623a5947e4d4b775f8b899d490ce686f6 100644\n--- a/astropy/io/fits/connect.py\n+++ b/astropy/io/fits/connect.py\n@@ -69,7 +69,9 @@ def is_fits(origin, filepath, fileobj, *args, **kwargs):\n             (\".fits\", \".fits.gz\", \".fit\", \".fit.gz\", \".fts\", \".fts.gz\")\n         ):\n             return True\n-    return isinstance(args[0], (HDUList, TableHDU, BinTableHDU, GroupsHDU))\n+    if len(args) > 0:\n+        return isinstance(args[0], (HDUList, TableHDU, BinTableHDU, GroupsHDU))\n+    return False\n \n \n def _decode_mixins(tbl):\n"}

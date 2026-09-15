@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "status": "finished",
+  "run_id": "memory-ab10-rerun2-trimmed-20260904",
+  "workflow_mode": "single-agent",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "started_at": "2026-09-04T14:08:28.861473+00:00",
+  "configuration": {
+    "limit": 10,
+    "instance_ids": [],
+    "max_attempts": 1,
+    "instance_timeout": 240,
+    "planner_time_budget": 120,
+    "actor_time_budget": 90,
+    "verifier_time_budget": 30,
+    "resume": false,
+    "memory_profile": "node-trimmed"
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904",
+    "report": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\evaluation_report.json",
+    "results": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\results.jsonl",
+    "predictions": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\predictions.jsonl",
+    "events": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\events",
+    "workspaces": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces"
+  },
+  "smoke_summary": {
+    "dataset": "princeton-nlp/SWE-bench_Verified",
+    "workflow_mode": "single-agent",
+    "model": "deepseek-v4-pro",
+    "memory_profile": "node-trimmed",
+    "requested": 10,
+    "processed": 10,
+    "skipped": 0,
+    "statuses": {
+      "failed": 1,
+      "timed_out": 7,
+      "no_patch": 1,
+      "completed": 1
+    },
+    "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\predictions.jsonl",
+    "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\results.jsonl",
+    "created_at": "2026-09-04T14:43:33.290852+00:00"
+  },
+  "metrics": {
+    "instances": 10,
+    "statuses": {
+      "completed": 1,
+      "failed": 1,
+      "no_patch": 1,
+      "timed_out": 7
+    },
+    "patches_generated": 3,
+    "duration_seconds_total": 2072.252,
+    "duration_seconds_average": 207.225,
+    "tool_calls": 64,
+    "events": 573,
+    "verifier_passed": 0,
+    "token_usage": {
+      "input_tokens": 828555,
+      "output_tokens": 81308,
+      "total_tokens": 909863
+    }
+  },
+  "results": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "failed",
+      "duration_seconds": 0.585,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "RuntimeError: git checkout --detach d16bfe05a744909de4b27f5875fe0d4ed41ce607 failed: fatal: unable to read tree (d16bfe05a744909de4b27f5875fe0d4ed41ce607)",
+      "event_count": 0,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-12907",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13033",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 240.378,
+      "patch_chars": 1397,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 240 seconds",
+      "event_count": 92,
+      "tool_calls": 11,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-13033",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 92019,
+          "output_tokens": 16059,
+          "total_tokens": 108078
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13236",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 240.498,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 240 seconds",
+      "event_count": 79,
+      "tool_calls": 8,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-13236",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 47042,
+          "output_tokens": 13214,
+          "total_tokens": 60256
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13398",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 240.946,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 240 seconds",
+      "event_count": 5,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-13398",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13453",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 240.541,
+      "patch_chars": 439,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 240 seconds",
+      "event_count": 145,
+      "tool_calls": 20,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-13453",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 418355,
+          "output_tokens": 16526,
+          "total_tokens": 434881
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13579",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 240.56,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 240 seconds",
+      "event_count": 5,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-13579",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13977",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "no_patch",
+      "duration_seconds": 223.019,
+      "patch_chars": 0,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nCreate a focused implementation edit that resolves the issue; the current change is empty or contains only supporting artifacts.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 86,
+      "tool_calls": 8,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-13977",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 105850,
+          "output_tokens": 12915,
+          "total_tokens": 118765
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-14096",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 240.439,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 240 seconds",
+      "event_count": 5,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-14096",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-14182",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 240.303,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 240 seconds",
+      "event_count": 38,
+      "tool_calls": 3,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-14182",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 4940,
+          "output_tokens": 16133,
+          "total_tokens": 21073
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-14309",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 164.983,
+      "patch_chars": 636,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nAdd a focused regression test, e.g. in astropy/io/registry/tests/test_registries.py, asserting that identify_format('write', Table, 'bububu.ecsv', None, [], {}) does not raise and that FITS/HDU cases still return True. Then build the astropy extensions if possible and run the regression test and relevant io.registry/io.fits tests.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 118,
+      "tool_calls": 14,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab10-rerun2-trimmed-20260904\\workspaces\\astropy__astropy-14309",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 160349,
+          "output_tokens": 6461,
+          "total_tokens": 166810
+        }
+      }
+    }
+  ],
+  "prediction_summaries": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-13033",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 1397,
+      "patch_sha256": "fcf359624e2a81f9d0c6dfbac8f445d6c002b8e94c23699afd9e2fcbfaf8323c"
+    },
+    {
+      "instance_id": "astropy__astropy-13236",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-13398",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-13453",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 439,
+      "patch_sha256": "3239b50b216981cd45a5b12fd1dbc9350cbcfa1491b845e2c5edca3321f5a34a"
+    },
+    {
+      "instance_id": "astropy__astropy-13579",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-13977",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-14096",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-14182",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-14309",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 636,
+      "patch_sha256": "10786bdf7ed283e4aa02468e57981e77141aaa18d50a28a6530a1abc0bc6aba6"
+    }
+  ],
+  "langsmith": {
+    "requested": false
+  },
+  "official_harness": {
+    "requested": false,
+    "officially_graded": false
+  },
+  "ended_at": "2026-09-04T14:43:33.360866+00:00",
+  "duration_seconds": 2104.499
+}

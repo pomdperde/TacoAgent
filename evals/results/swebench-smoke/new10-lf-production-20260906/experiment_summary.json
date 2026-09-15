@@ -1,0 +1,50 @@
+{
+  "run_id": "new10-lf-production-20260906",
+  "official_run_id": "new10lf20260906",
+  "instances": 10,
+  "patches_generated": 9,
+  "patch_generation_rate": 0.9,
+  "official_resolved_raw_4_1_0": 6,
+  "official_resolved": 7,
+  "official_unresolved": 2,
+  "empty_patches": 1,
+  "official_infrastructure_errors": 0,
+  "official_resolved_rate_all_instances": 0.7,
+  "official_resolved_rate_non_empty_patches": 0.777778,
+  "agent_statuses": {
+    "completed": 8,
+    "timed_out": 2
+  },
+  "local_verifier_passed": 2,
+  "token_usage": {
+    "input_tokens": 1256934,
+    "output_tokens": 125309,
+    "total_tokens": 1382243,
+    "average_per_instance": 138224.3,
+    "median_per_instance": 135551,
+    "tokens_per_agent_second": 305.646,
+    "output_to_input_ratio": 0.099694,
+    "tokens_per_official_resolved_task": 197463.286,
+    "official_resolved_tasks_per_million_tokens": 5.064
+  },
+  "timing": {
+    "agent_instance_seconds_total": 4522.368,
+    "agent_instance_seconds_average": 452.237,
+    "agent_instance_seconds_median": 471.622,
+    "agent_instance_seconds_max": 601.302,
+    "whole_agent_run_seconds": 4587.134,
+    "official_harness_seconds_approx": 1621
+  },
+  "instances_detail": [
+    {"instance_id":"astropy__astropy-14365","agent_status":"completed","patch_chars":537,"tokens":142853,"seconds":369.588,"official":"unresolved"},
+    {"instance_id":"astropy__astropy-14369","agent_status":"timed_out","patch_chars":0,"tokens":54068,"seconds":600.700,"official":"empty"},
+    {"instance_id":"astropy__astropy-14508","agent_status":"completed","patch_chars":1688,"tokens":188267,"seconds":579.445,"official":"resolved"},
+    {"instance_id":"astropy__astropy-14539","agent_status":"completed","patch_chars":592,"tokens":166717,"seconds":492.188,"official":"resolved"},
+    {"instance_id":"astropy__astropy-14598","agent_status":"timed_out","patch_chars":569,"tokens":109521,"seconds":601.302,"official":"unresolved"},
+    {"instance_id":"astropy__astropy-14995","agent_status":"completed","patch_chars":774,"tokens":112601,"seconds":298.556,"official":"resolved"},
+    {"instance_id":"astropy__astropy-7166","agent_status":"completed","patch_chars":593,"tokens":159793,"seconds":484.724,"official":"resolved"},
+    {"instance_id":"astropy__astropy-7336","agent_status":"completed","patch_chars":853,"tokens":70528,"seconds":384.706,"official":"resolved"},
+    {"instance_id":"astropy__astropy-7606","agent_status":"completed","patch_chars":527,"tokens":249646,"seconds":252.639,"official":"resolved_compat_4_1_0"},
+    {"instance_id":"astropy__astropy-7671","agent_status":"completed","patch_chars":991,"tokens":128249,"seconds":458.520,"official":"resolved"}
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "run_id": "new10-finalverify-20260906-v3",
+  "official_run_id": "new10v3official",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "instances": 10,
+  "patches_generated": 5,
+  "patch_generation_rate": 0.5,
+  "official_resolved": 2,
+  "official_resolved_rate_all_instances": 0.2,
+  "official_resolved_rate_generated_patches": 0.4,
+  "official_completed_grades": 3,
+  "official_harness_errors": 2,
+  "token_usage": {
+    "input_tokens": 695100,
+    "output_tokens": 61338,
+    "total_tokens": 756438,
+    "average_total_tokens_per_instance": 75643.8,
+    "median_total_tokens_per_instance": 67071.5
+  },
+  "timing": {
+    "agent_raw_total_seconds": 81605.873,
+    "agent_raw_average_seconds": 8160.587,
+    "agent_median_seconds": 387.457,
+    "agent_average_seconds_for_runs_under_600_seconds": 232.772,
+    "runs_under_600_seconds": 7,
+    "official_harness_seconds": 1737,
+    "note": "Raw wall time includes host/session suspension; three instances exceeded the configured 600-second hard timeout by a large margin."
+  },
+  "official_results": {
+    "astropy__astropy-8707": "resolved",
+    "django__django-10097": "harness_error_docker_registry_eof",
+    "django__django-10914": "resolved",
+    "django__django-10973": "unresolved",
+    "django__django-11066": "harness_error_image_build_or_fetch"
+  },
+  "infrastructure_failures": {
+    "workspace_git_tls": [
+      "django__django-10999",
+      "django__django-11087"
+    ],
+    "agent_timeout_with_host_suspension": [
+      "django__django-10554",
+      "django__django-10880",
+      "django__django-10914"
+    ],
+    "official_harness": [
+      "django__django-10097",
+      "django__django-11066"
+    ],
+    "official_summary_failure": "TLS EOF while SWE-bench 4.1.0 fetched an unrelated environment.yml during make_run_report; per-instance reports remain authoritative."
+  }
+}

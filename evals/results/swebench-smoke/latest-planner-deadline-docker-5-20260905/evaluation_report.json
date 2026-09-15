@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "status": "finished",
+  "run_id": "latest-planner-deadline-docker-5-20260905",
+  "workflow_mode": "single-agent",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "started_at": "2026-09-05T01:28:36.649432+00:00",
+  "configuration": {
+    "limit": 5,
+    "instance_ids": [],
+    "max_attempts": 1,
+    "instance_timeout": 600,
+    "planner_time_budget": 150,
+    "actor_time_budget": 300,
+    "verifier_time_budget": 120,
+    "resume": false,
+    "memory_profile": "node-trimmed"
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905",
+    "report": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\evaluation_report.json",
+    "results": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\results.jsonl",
+    "predictions": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\predictions.jsonl",
+    "events": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\events",
+    "workspaces": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\workspaces"
+  },
+  "smoke_summary": {
+    "dataset": "princeton-nlp/SWE-bench_Verified",
+    "workflow_mode": "single-agent",
+    "model": "deepseek-v4-pro",
+    "memory_profile": "node-trimmed",
+    "requested": 5,
+    "processed": 5,
+    "skipped": 0,
+    "statuses": {
+      "completed": 5
+    },
+    "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\predictions.jsonl",
+    "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\results.jsonl",
+    "created_at": "2026-09-05T01:55:25.326807+00:00"
+  },
+  "metrics": {
+    "instances": 5,
+    "statuses": {
+      "completed": 5
+    },
+    "patches_generated": 5,
+    "duration_seconds_total": 1566.774,
+    "duration_seconds_average": 313.355,
+    "tool_calls": 51,
+    "events": 502,
+    "verifier_passed": 0,
+    "token_usage": {
+      "input_tokens": 531809,
+      "output_tokens": 67366,
+      "total_tokens": 599175
+    }
+  },
+  "results": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 356.812,
+      "patch_chars": 1748,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nImplement the focused production-code fix in astropy/modeling/separable.py so nested CompoundModel separability is computed correctly, run a minimal regression test such as separability_matrix(m.Pix2Sky_TAN() & (m.Linear1D(10) & m.Linear1D(5))) returning the expected block-diagonal matrix, and report the changed files and test output.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 102,
+      "tool_calls": 10,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\workspaces\\astropy__astropy-12907",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 90879,
+          "output_tokens": 10612,
+          "total_tokens": 101491
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13033",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 231.999,
+      "patch_chars": 1743,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nAdd a focused regression test in astropy/timeseries/tests/test_timeseries.py that reproduces removing a required column and asserts the ValueError identifies the missing/expected required columns. Then build/install astropy extensions if needed and run python -m pytest astropy/timeseries/tests/test_timeseries.py -k required_columns -q and the full timeseries test file.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 98,
+      "tool_calls": 9,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\workspaces\\astropy__astropy-13033",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 75971,
+          "output_tokens": 12257,
+          "total_tokens": 88228
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13236",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 244.443,
+      "patch_chars": 769,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nAdd a regression test in astropy/table/tests (for example test_table.py) asserting that passing a structured numpy.ndarray to Table emits FutureWarning and still produces an NdarrayMixin, and that structured Column or explicit NdarrayMixin inputs do not warn. Then rerun the provided pytest commands in a properly built astropy environment with setuptools_scm and compiled extension modules available.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 95,
+      "tool_calls": 8,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\workspaces\\astropy__astropy-13236",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 83165,
+          "output_tokens": 11781,
+          "total_tokens": 94946
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13398",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 329.91,
+      "patch_chars": 3704,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nImplement the focused production-code patch for the direct ITRS to AltAz/HADec transformations, run the smallest relevant regression test, and provide a summary of the changed files plus the test result.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 119,
+      "tool_calls": 15,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\workspaces\\astropy__astropy-13398",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 143627,
+          "output_tokens": 10651,
+          "total_tokens": 154278
+        }
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-13453",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 403.61,
+      "patch_chars": 627,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nBuild the astropy source tree first by installing build dependencies such as setuptools_scm and building the package/extension modules, then rerun the HTML and ASCII writer test suites and the provided reproduction command. If the formats fix and regression test are not yet implemented, add them before retesting.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 88,
+      "tool_calls": 9,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\workspaces\\astropy__astropy-13453",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 138167,
+          "output_tokens": 22065,
+          "total_tokens": 160232
+        }
+      }
+    }
+  ],
+  "prediction_summaries": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 1748,
+      "patch_sha256": "4237a762c74287d4f914662945a5fd6e787577651bd00b52ccb169a1f7831907"
+    },
+    {
+      "instance_id": "astropy__astropy-13033",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 1743,
+      "patch_sha256": "2c1307806b0c83dc427235c89a8869a2beee7129de5fc31e444e0c1b3326b561"
+    },
+    {
+      "instance_id": "astropy__astropy-13236",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 769,
+      "patch_sha256": "5a64f53299c4c6da69ba4a2c22dedd9d0482fca4870ed744944e4e6db73b4744"
+    },
+    {
+      "instance_id": "astropy__astropy-13398",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 3704,
+      "patch_sha256": "dafd6ee3aed5deddca31a8e4f249274679cdafda82a41c38bde781349981f6a8"
+    },
+    {
+      "instance_id": "astropy__astropy-13453",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 627,
+      "patch_sha256": "9b499285f605de75b82ab481d1ac44d7dc893192c112a4a9e888cfda19645601"
+    }
+  ],
+  "langsmith": {
+    "requested": false
+  },
+  "official_harness": {
+    "requested": true,
+    "ok": false,
+    "exit_code": 1,
+    "command": [
+      "D:\\Miniconda\\python.exe",
+      "-m",
+      "swebench.harness.run_evaluation",
+      "--dataset_name",
+      "princeton-nlp/SWE-bench_Verified",
+      "--predictions_path",
+      "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\predictions.jsonl",
+      "--max_workers",
+      "1",
+      "--timeout",
+      "1800",
+      "--run_id",
+      "latest-planner-deadline-docker-5-20260905"
+    ],
+    "report_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\latest-planner-deadline-docker-5-20260905\\official",
+    "stdout": "",
+    "stderr": "D:\\Miniconda\\Lib\\site-packages\\requests\\__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.6.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"D:\\Miniconda\\Lib\\site-packages\\swebench\\harness\\run_evaluation.py\", line 863, in <module>\n    main(**vars(args))\n    ~~~~^^^^^^^^^^^^^^\n  File \"D:\\Miniconda\\Lib\\site-packages\\swebench\\harness\\run_evaluation.py\", line 783, in main\n    run_instances(\n    ~~~~~~~~~~~~~^\n        predictions,\n        ^^^^^^^^^^^^\n    ...<5 lines>...\n        task_repo=task_repo,\n        ^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"D:\\Miniconda\\Lib\\site-packages\\swebench\\harness\\run_evaluation.py\", line 455, in run_instances\n    test_specs = [make_test_spec(instance) for instance in instances]\n                  ~~~~~~~~~~~~~~^^^^^^^^^^\n  File \"D:\\Miniconda\\Lib\\site-packages\\swebench\\harness\\utils.py\", line 262, in make_test_spec\n    image=instance[\"image\"],\n          ~~~~~~~~^^^^^^^^^\nKeyError: 'image'\n"
+  },
+  "ended_at": "2026-09-05T01:55:45.763380+00:00",
+  "duration_seconds": 1629.114
+}

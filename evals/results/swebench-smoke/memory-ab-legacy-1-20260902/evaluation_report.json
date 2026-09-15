@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "status": "finished",
+  "run_id": "memory-ab-legacy-1-20260902",
+  "workflow_mode": "single-agent",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "started_at": "2026-09-02T09:24:08.540422+00:00",
+  "configuration": {
+    "limit": 5,
+    "instance_ids": [
+      "astropy__astropy-13033"
+    ],
+    "max_attempts": 1,
+    "instance_timeout": 300,
+    "planner_time_budget": 60,
+    "actor_time_budget": 150,
+    "verifier_time_budget": 60,
+    "resume": false,
+    "memory_profile": "legacy-uniform"
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902",
+    "report": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\evaluation_report.json",
+    "results": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\results.jsonl",
+    "predictions": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\predictions.jsonl",
+    "events": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\events",
+    "workspaces": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\workspaces"
+  },
+  "smoke_summary": {
+    "dataset": "princeton-nlp/SWE-bench_Verified",
+    "workflow_mode": "single-agent",
+    "model": "deepseek-v4-pro",
+    "memory_profile": "legacy-uniform",
+    "requested": 1,
+    "processed": 1,
+    "skipped": 0,
+    "statuses": {
+      "failed": 1
+    },
+    "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\predictions.jsonl",
+    "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\results.jsonl",
+    "created_at": "2026-09-02T09:27:08.809576+00:00"
+  },
+  "metrics": {
+    "instances": 1,
+    "statuses": {
+      "failed": 1
+    },
+    "patches_generated": 0,
+    "duration_seconds_total": 156.106,
+    "duration_seconds_average": 156.106,
+    "tool_calls": 0,
+    "events": 6,
+    "verifier_passed": 0,
+    "token_usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "total_tokens": 0
+    }
+  },
+  "results": [
+    {
+      "instance_id": "astropy__astropy-13033",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "failed",
+      "duration_seconds": 156.106,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "APITimeoutError: Request timed out.",
+      "event_count": 6,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\memory-ab-legacy-1-20260902\\workspaces\\astropy__astropy-13033",
+      "metadata": {
+        "memory_profile": "legacy-uniform",
+        "token_usage": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 0
+        }
+      }
+    }
+  ],
+  "prediction_summaries": [
+    {
+      "instance_id": "astropy__astropy-13033",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "langsmith": {
+    "requested": false
+  },
+  "official_harness": {
+    "requested": false,
+    "officially_graded": false
+  },
+  "ended_at": "2026-09-02T09:27:08.841445+00:00",
+  "duration_seconds": 180.301
+}

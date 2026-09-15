@@ -1,0 +1,177 @@
+{
+  "schema_version": 1,
+  "status": "finished",
+  "run_id": "single-agent-default-10min-5-20260830",
+  "workflow_mode": "single-agent",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "started_at": "2026-08-30T07:13:19.111224+00:00",
+  "configuration": {
+    "limit": 5,
+    "instance_ids": [],
+    "max_attempts": 3,
+    "instance_timeout": 600,
+    "planner_time_budget": 150,
+    "actor_time_budget": 300,
+    "verifier_time_budget": 120,
+    "resume": false
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830",
+    "report": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\evaluation_report.json",
+    "results": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\results.jsonl",
+    "predictions": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\predictions.jsonl",
+    "events": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\events",
+    "workspaces": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\workspaces"
+  },
+  "smoke_summary": {
+    "dataset": "princeton-nlp/SWE-bench_Verified",
+    "workflow_mode": "single-agent",
+    "model": "deepseek-v4-pro",
+    "requested": 5,
+    "processed": 5,
+    "skipped": 0,
+    "statuses": {
+      "timed_out": 3,
+      "completed": 2
+    },
+    "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\predictions.jsonl",
+    "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\results.jsonl",
+    "created_at": "2026-08-30T08:01:14.826481+00:00"
+  },
+  "metrics": {
+    "instances": 5,
+    "statuses": {
+      "completed": 2,
+      "timed_out": 3
+    },
+    "patches_generated": 4,
+    "duration_seconds_total": 2849.965,
+    "duration_seconds_average": 569.993,
+    "tool_calls": 266,
+    "events": 1186,
+    "verifier_passed": 0
+  },
+  "results": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 600.333,
+      "patch_chars": 1642,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 600 seconds",
+      "event_count": 234,
+      "tool_calls": 54,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\workspaces\\astropy__astropy-12907",
+      "metadata": {}
+    },
+    {
+      "instance_id": "astropy__astropy-13033",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 521.187,
+      "patch_chars": 3653,
+      "final_answer": "Task did not pass verification after 3 attempt(s).\n\nVerifier returned no valid assessment",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 269,
+      "tool_calls": 62,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\workspaces\\astropy__astropy-13033",
+      "metadata": {}
+    },
+    {
+      "instance_id": "astropy__astropy-13236",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 527.509,
+      "patch_chars": 881,
+      "final_answer": "Task did not pass verification after 3 attempt(s).\n\nVerifier returned no valid assessment",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 249,
+      "tool_calls": 53,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\workspaces\\astropy__astropy-13236",
+      "metadata": {}
+    },
+    {
+      "instance_id": "astropy__astropy-13398",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 600.438,
+      "patch_chars": 3711,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 600 seconds",
+      "event_count": 270,
+      "tool_calls": 62,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\workspaces\\astropy__astropy-13398",
+      "metadata": {}
+    },
+    {
+      "instance_id": "astropy__astropy-13453",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 600.498,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 600 seconds",
+      "event_count": 164,
+      "tool_calls": 35,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-default-10min-5-20260830\\workspaces\\astropy__astropy-13453",
+      "metadata": {}
+    }
+  ],
+  "prediction_summaries": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 1642,
+      "patch_sha256": "33e7c6888fbe8b0b58e9cf1913a7fa6702ad8ac1bb7adb203f7255417d0e78b6"
+    },
+    {
+      "instance_id": "astropy__astropy-13033",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 3653,
+      "patch_sha256": "915fcb2fdf3ecfeba134fcdbfbe06607f95d42533af0f611cbd096cfefe6ce76"
+    },
+    {
+      "instance_id": "astropy__astropy-13236",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 881,
+      "patch_sha256": "bbe9c1ecf4b7bf4bc7b3d3adbebc8fbea78d63ad17382da9c163a83103df139d"
+    },
+    {
+      "instance_id": "astropy__astropy-13398",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 3711,
+      "patch_sha256": "ee871c5cfa5879bad982d3b267c5238a9f109be42a7eae83c077f94499b0e3d6"
+    },
+    {
+      "instance_id": "astropy__astropy-13453",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "langsmith": {
+    "requested": true,
+    "ok": true,
+    "dataset_name": "TacoAgent SWE-bench Verified single-agent default 10min 2026-08-30",
+    "dataset_id": "144cefe9-c2b1-485f-9833-aeb8c07c84df",
+    "examples_uploaded": 5,
+    "created": true
+  },
+  "official_harness": {
+    "requested": false,
+    "officially_graded": false
+  },
+  "ended_at": "2026-08-30T08:01:22.845053+00:00",
+  "duration_seconds": 2883.734
+}

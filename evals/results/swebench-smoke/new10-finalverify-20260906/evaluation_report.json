@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "run_id": "new10-finalverify-20260906",
+  "workflow_mode": "single-agent",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "started_at": "2026-09-06T09:47:44.103804+00:00",
+  "configuration": {
+    "limit": 10,
+    "instance_ids": [
+      "astropy__astropy-8707",
+      "astropy__astropy-8872",
+      "django__django-10097",
+      "django__django-10554",
+      "django__django-10880",
+      "django__django-10914",
+      "django__django-10973",
+      "django__django-10999",
+      "django__django-11066",
+      "django__django-11087"
+    ],
+    "max_attempts": 1,
+    "instance_timeout": 600,
+    "planner_time_budget": 150,
+    "actor_time_budget": 300,
+    "verifier_time_budget": 120,
+    "resume": false,
+    "memory_profile": "node-trimmed"
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-20260906",
+    "report": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-20260906\\evaluation_report.json"
+  },
+  "error": "NameError: name 'subprocess' is not defined",
+  "ended_at": "2026-09-06T09:57:52.048106+00:00",
+  "duration_seconds": 607.944
+}

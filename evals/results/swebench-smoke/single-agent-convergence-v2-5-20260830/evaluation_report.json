@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "status": "finished",
+  "run_id": "single-agent-convergence-v2-5-20260830",
+  "workflow_mode": "single-agent",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "started_at": "2026-08-30T01:42:15.527333+00:00",
+  "configuration": {
+    "limit": 5,
+    "instance_ids": [],
+    "max_attempts": 3,
+    "instance_timeout": 300,
+    "resume": false
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830",
+    "report": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\evaluation_report.json",
+    "results": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\results.jsonl",
+    "predictions": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\predictions.jsonl",
+    "events": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\events",
+    "workspaces": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\workspaces"
+  },
+  "smoke_summary": {
+    "dataset": "princeton-nlp/SWE-bench_Verified",
+    "workflow_mode": "single-agent",
+    "model": "deepseek-v4-pro",
+    "requested": 5,
+    "processed": 5,
+    "skipped": 0,
+    "statuses": {
+      "timed_out": 2,
+      "failed": 3
+    },
+    "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\predictions.jsonl",
+    "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\results.jsonl",
+    "created_at": "2026-08-30T01:58:00.598094+00:00"
+  },
+  "metrics": {
+    "instances": 5,
+    "statuses": {
+      "failed": 3,
+      "timed_out": 2
+    },
+    "patches_generated": 0,
+    "duration_seconds_total": 922.221,
+    "duration_seconds_average": 184.444,
+    "tool_calls": 26,
+    "events": 156,
+    "verifier_passed": 0
+  },
+  "results": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 309.336,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 300 seconds",
+      "event_count": 5,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\workspaces\\astropy__astropy-12907",
+      "metadata": {}
+    },
+    {
+      "instance_id": "astropy__astropy-13033",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 300.834,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 300 seconds",
+      "event_count": 125,
+      "tool_calls": 26,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\workspaces\\astropy__astropy-13033",
+      "metadata": {}
+    },
+    {
+      "instance_id": "astropy__astropy-13236",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "failed",
+      "duration_seconds": 125.021,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "APIStatusError: Error code: 402 - {'error': {'message': 'Insufficient Balance', 'type': 'unknown_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "event_count": 14,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\workspaces\\astropy__astropy-13236",
+      "metadata": {}
+    },
+    {
+      "instance_id": "astropy__astropy-13398",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "failed",
+      "duration_seconds": 109.7,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "APIStatusError: Error code: 402 - {'error': {'message': 'Insufficient Balance', 'type': 'unknown_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "event_count": 6,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\workspaces\\astropy__astropy-13398",
+      "metadata": {}
+    },
+    {
+      "instance_id": "astropy__astropy-13453",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "failed",
+      "duration_seconds": 77.33,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "APIStatusError: Error code: 402 - {'error': {'message': 'Insufficient Balance', 'type': 'unknown_error', 'param': None, 'code': 'invalid_request_error'}}",
+      "event_count": 6,
+      "tool_calls": 0,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\single-agent-convergence-v2-5-20260830\\workspaces\\astropy__astropy-13453",
+      "metadata": {}
+    }
+  ],
+  "prediction_summaries": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-13033",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-13236",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-13398",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "astropy__astropy-13453",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "langsmith": {
+    "requested": true,
+    "ok": true,
+    "dataset_name": "TacoAgent SWE-bench Verified single-agent convergence v2 2026-08-30",
+    "dataset_id": "806b450a-fa90-436b-8c69-627445433c9b",
+    "examples_uploaded": 5,
+    "created": true
+  },
+  "official_harness": {
+    "requested": false,
+    "officially_graded": false
+  },
+  "ended_at": "2026-08-30T01:58:09.198408+00:00",
+  "duration_seconds": 953.671
+}

@@ -1,0 +1,44 @@
+{
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "instance_id": "astropy__astropy-13033",
+  "model": "deepseek-v4-pro",
+  "configuration": {
+    "max_attempts": 1,
+    "instance_timeout": 240,
+    "planner_time_budget": 120,
+    "actor_time_budget": 90,
+    "verifier_time_budget": 30
+  },
+  "legacy_uniform": {
+    "status": "timed_out",
+    "duration_seconds": 240.332,
+    "model_calls": 5,
+    "input_tokens": 44721,
+    "output_tokens": 15946,
+    "total_tokens": 60667,
+    "tool_calls": 7
+  },
+  "node_trimmed": {
+    "status": "no_patch",
+    "duration_seconds": 206.986,
+    "model_calls": 10,
+    "input_tokens": 61664,
+    "output_tokens": 13246,
+    "total_tokens": 74910,
+    "tool_calls": 8
+  },
+  "raw_change_percent": {
+    "duration": -13.87,
+    "input_tokens": 37.89,
+    "total_tokens": 23.48
+  },
+  "common_five_call_prefix": {
+    "legacy_input_tokens": 44721,
+    "trimmed_input_tokens": 41032,
+    "input_reduction_percent": 8.25,
+    "legacy_total_tokens": 60667,
+    "trimmed_total_tokens": 53283,
+    "total_reduction_percent": 12.17
+  },
+  "interpretation": "Raw totals are not stage-equivalent: node-trimmed reached verifier/final while legacy timed out in actor. Use the common-prefix figures for a directional memory-cost comparison."
+}

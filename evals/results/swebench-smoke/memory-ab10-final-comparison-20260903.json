@@ -1,0 +1,57 @@
+{
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "instances_per_group": 10,
+  "model": "deepseek-v4-pro",
+  "configuration": {
+    "max_attempts": 1,
+    "instance_timeout_seconds": 240,
+    "planner_actor_verifier_budgets_seconds": [120, 90, 30]
+  },
+  "legacy_uniform": {
+    "duration_seconds_total": 2149.108,
+    "duration_seconds_average": 214.911,
+    "duration_seconds_median": 240.518,
+    "input_tokens": 436069,
+    "output_tokens": 62188,
+    "total_tokens": 498257,
+    "model_calls": 49,
+    "workflow_completed": 1,
+    "patches_generated": 1,
+    "verifier_passed": 0,
+    "timed_out": 7
+  },
+  "node_trimmed": {
+    "duration_seconds_total": 1853.628,
+    "duration_seconds_average": 185.363,
+    "duration_seconds_median": 240.398,
+    "input_tokens": 798220,
+    "output_tokens": 72992,
+    "total_tokens": 871212,
+    "model_calls": 85,
+    "workflow_completed": 2,
+    "patches_generated": 3,
+    "verifier_passed": 0,
+    "timed_out": 6
+  },
+  "raw_change_percent": {
+    "duration_total": -13.75,
+    "input_tokens": 83.05,
+    "total_tokens": 74.85
+  },
+  "common_call_prefix": {
+    "paired_calls": 31,
+    "legacy_input_tokens": 270077,
+    "trimmed_input_tokens": 198599,
+    "input_reduction_percent": 26.47,
+    "legacy_total_tokens": 316806,
+    "trimmed_total_tokens": 242782,
+    "total_reduction_percent": 23.37
+  },
+  "success_rates_percent": {
+    "workflow_completed": {"legacy": 10, "trimmed": 20},
+    "patch_generated": {"legacy": 10, "trimmed": 30},
+    "local_verifier_passed": {"legacy": 0, "trimmed": 0}
+  },
+  "official_resolved_rate": null,
+  "official_harness_error": "Installed swebench harness is incompatible with the loaded Verified dataset schema: KeyError: image"
+}

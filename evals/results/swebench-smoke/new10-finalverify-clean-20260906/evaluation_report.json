@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "status": "finished",
+  "run_id": "new10-finalverify-clean-20260906",
+  "workflow_mode": "single-agent",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "started_at": "2026-09-06T13:07:18.638949+00:00",
+  "configuration": {
+    "limit": 10,
+    "instance_ids": [
+      "astropy__astropy-8707",
+      "astropy__astropy-8872",
+      "django__django-10097",
+      "django__django-10554",
+      "django__django-10880",
+      "django__django-10914",
+      "django__django-10973",
+      "django__django-10999",
+      "django__django-11066",
+      "django__django-11087"
+    ],
+    "max_attempts": 1,
+    "instance_timeout": 600,
+    "planner_time_budget": 150,
+    "actor_time_budget": 300,
+    "verifier_time_budget": 120,
+    "resume": false,
+    "memory_profile": "node-trimmed"
+  },
+  "paths": {
+    "run_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906",
+    "report": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\evaluation_report.json",
+    "results": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\results.jsonl",
+    "predictions": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\predictions.jsonl",
+    "events": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\events",
+    "workspaces": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces"
+  },
+  "smoke_summary": {
+    "dataset": "princeton-nlp/SWE-bench_Verified",
+    "workflow_mode": "single-agent",
+    "model": "deepseek-v4-pro",
+    "memory_profile": "node-trimmed",
+    "requested": 10,
+    "processed": 10,
+    "skipped": 0,
+    "statuses": {
+      "completed": 4,
+      "timed_out": 4,
+      "no_patch": 2
+    },
+    "predictions_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\predictions.jsonl",
+    "ledger_path": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\results.jsonl",
+    "created_at": "2026-09-06T14:37:47.319062+00:00"
+  },
+  "metrics": {
+    "instances": 10,
+    "statuses": {
+      "completed": 4,
+      "no_patch": 2,
+      "timed_out": 4
+    },
+    "patches_generated": 5,
+    "duration_seconds_total": 5380.212,
+    "duration_seconds_average": 538.021,
+    "tool_calls": 82,
+    "events": 879,
+    "verifier_passed": 0,
+    "token_usage": {
+      "input_tokens": 760610,
+      "output_tokens": 135059,
+      "total_tokens": 895669
+    }
+  },
+  "results": [
+    {
+      "instance_id": "astropy__astropy-8707",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 578.222,
+      "patch_chars": 465,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nVerification is blocked by the local environment or command timeout",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 103,
+      "tool_calls": 10,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\astropy__astropy-8707",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 133427,
+          "output_tokens": 19593,
+          "total_tokens": 153020
+        },
+        "excluded_test_artifacts": []
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-8872",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 600.692,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 600 seconds",
+      "event_count": 95,
+      "tool_calls": 11,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\astropy__astropy-8872",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 115686,
+          "output_tokens": 14992,
+          "total_tokens": 130678
+        }
+      }
+    },
+    {
+      "instance_id": "django__django-10097",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 489.685,
+      "patch_chars": 658,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nVerification is blocked by the local environment or command timeout",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 82,
+      "tool_calls": 7,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\django__django-10097",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 59778,
+          "output_tokens": 5919,
+          "total_tokens": 65697
+        },
+        "excluded_test_artifacts": []
+      }
+    },
+    {
+      "instance_id": "django__django-10554",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 600.735,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 600 seconds",
+      "event_count": 74,
+      "tool_calls": 8,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\django__django-10554",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 65653,
+          "output_tokens": 30290,
+          "total_tokens": 95943
+        }
+      }
+    },
+    {
+      "instance_id": "django__django-10880",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 601.121,
+      "patch_chars": 699,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 600 seconds",
+      "event_count": 105,
+      "tool_calls": 10,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\django__django-10880",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 81069,
+          "output_tokens": 9195,
+          "total_tokens": 90264
+        }
+      }
+    },
+    {
+      "instance_id": "django__django-10914",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "no_patch",
+      "duration_seconds": 539.79,
+      "patch_chars": 0,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nCreate a focused implementation edit that resolves the issue; the current change is empty or contains only supporting artifacts.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 56,
+      "tool_calls": 4,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\django__django-10914",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 52750,
+          "output_tokens": 12332,
+          "total_tokens": 65082
+        },
+        "excluded_test_artifacts": []
+      }
+    },
+    {
+      "instance_id": "django__django-10973",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 583.353,
+      "patch_chars": 2540,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nVerification is blocked by the local environment or command timeout",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 123,
+      "tool_calls": 13,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\django__django-10973",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 68448,
+          "output_tokens": 16326,
+          "total_tokens": 84774
+        },
+        "excluded_test_artifacts": []
+      }
+    },
+    {
+      "instance_id": "django__django-10999",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "completed",
+      "duration_seconds": 448.5,
+      "patch_chars": 557,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nVerification is blocked by the local environment or command timeout",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 93,
+      "tool_calls": 7,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\django__django-10999",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 60734,
+          "output_tokens": 4970,
+          "total_tokens": 65704
+        },
+        "excluded_test_artifacts": []
+      }
+    },
+    {
+      "instance_id": "django__django-11066",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "no_patch",
+      "duration_seconds": 336.503,
+      "patch_chars": 0,
+      "final_answer": "Task did not pass verification after 1 attempt(s).\n\nCreate a focused implementation edit that resolves the issue; the current change is empty or contains only supporting artifacts.",
+      "verifier_passed": false,
+      "error": "",
+      "event_count": 66,
+      "tool_calls": 4,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\django__django-11066",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 50352,
+          "output_tokens": 9620,
+          "total_tokens": 59972
+        },
+        "policy_block_count": 0,
+        "policy_reprompt_count": 0,
+        "blocked_edits": [],
+        "provider_wait_seconds": 154.191,
+        "excluded_test_artifacts": []
+      }
+    },
+    {
+      "instance_id": "django__django-11087",
+      "workflow_mode": "single-agent",
+      "model_name": "deepseek-v4-pro",
+      "status": "timed_out",
+      "duration_seconds": 601.611,
+      "patch_chars": 0,
+      "final_answer": "",
+      "verifier_passed": null,
+      "error": "instance exceeded hard timeout of 600 seconds",
+      "event_count": 82,
+      "tool_calls": 8,
+      "workspace": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\workspaces\\django__django-11087",
+      "metadata": {
+        "memory_profile": "node-trimmed",
+        "token_usage": {
+          "input_tokens": 72713,
+          "output_tokens": 11822,
+          "total_tokens": 84535
+        }
+      }
+    }
+  ],
+  "prediction_summaries": [
+    {
+      "instance_id": "astropy__astropy-8707",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 465,
+      "patch_sha256": "adb9196f062a2f7ca9a363915896e7241bcd3918e741d6b90af796e1dbb92399"
+    },
+    {
+      "instance_id": "astropy__astropy-8872",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "django__django-10097",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 658,
+      "patch_sha256": "d6b8b6bbc9b0edce8f84ee4c39352bc253df9ec0a9f44c41383137bdbbca3dc5"
+    },
+    {
+      "instance_id": "django__django-10554",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "django__django-10880",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 699,
+      "patch_sha256": "26349c8b260c249f87d9ed48e29462a2ac306cbdd317761dcc934b4450b1cbe3"
+    },
+    {
+      "instance_id": "django__django-10914",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "django__django-10973",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 2540,
+      "patch_sha256": "3a5a204de5d4a3db004b9ba4a24704205cca6c9913d30f432ad8c8523ac75868"
+    },
+    {
+      "instance_id": "django__django-10999",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 557,
+      "patch_sha256": "7a228228b2fadc2b4647845d83a456ec6d8792e6da4e112d51db095abc2ccada"
+    },
+    {
+      "instance_id": "django__django-11066",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "instance_id": "django__django-11087",
+      "model_name_or_path": "tacoagent/single-agent/deepseek-v4-pro",
+      "patch_chars": 0,
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "langsmith": {
+    "requested": false
+  },
+  "official_harness": {
+    "requested": true,
+    "ok": false,
+    "exit_code": 1,
+    "command": [
+      "D:\\Miniconda\\python.exe",
+      "-m",
+      "swebench.harness.run_evaluation",
+      "--dataset_name",
+      "princeton-nlp/SWE-bench_Verified",
+      "--predictions_path",
+      "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\predictions.jsonl",
+      "--max_workers",
+      "1",
+      "--timeout",
+      "1800",
+      "--run_id",
+      "new10-finalverify-clean-20260906"
+    ],
+    "report_dir": "C:\\Users\\caiqiang\\Desktop\\hello_agents\\TacoAgent\\evals\\results\\swebench-smoke\\new10-finalverify-clean-20260906\\official",
+    "stdout": "",
+    "stderr": "D:\\Miniconda\\Lib\\site-packages\\requests\\__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.6.0)/charset_normalizer (3.4.4) doesn't match a supported version!\n  warnings.warn(\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 189, in _run_module_as_main\n  File \"<frozen runpy>\", line 112, in _get_module_details\n  File \"D:\\Miniconda\\Lib\\site-packages\\swebench\\__init__.py\", line 7, in <module>\n    from swebench.harness.constants import (\n    ...<4 lines>...\n    )\n  File \"D:\\Miniconda\\Lib\\site-packages\\swebench\\harness\\__init__.py\", line 1, in <module>\n    from swebench.harness import (\n    ...<13 lines>...\n    )\n  File \"D:\\Miniconda\\Lib\\site-packages\\swebench\\harness\\prepare_images.py\", line 2, in <module>\n    import resource\nModuleNotFoundError: No module named 'resource'\n"
+  },
+  "ended_at": "2026-09-06T14:37:52.167397+00:00",
+  "duration_seconds": 5433.528
+}
