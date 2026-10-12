@@ -27,6 +27,8 @@ class SweBenchSmokeTests(unittest.TestCase):
         diagnostics = _event_diagnostics([
             {"type": "provider_wait", "seconds": 1.25},
             {"type": "provider_wait", "seconds": 2.5},
+            {"type": "patch_status", "production_files_changed": True,
+             "elapsed_seconds_since_instance_start": 42.5},
             {"type": "tool_policy_blocked", "phase": "minimal_verification",
              "tool": "file_edit", "args": {"file_path": "module.py"},
              "reason": "deferred", "blocked_edit": True, "deferred": True},
@@ -35,6 +37,7 @@ class SweBenchSmokeTests(unittest.TestCase):
         self.assertEqual(diagnostics["provider_wait_seconds"], 3.75)
         self.assertEqual(diagnostics["policy_block_count"], 1)
         self.assertEqual(diagnostics["policy_reprompt_count"], 1)
+        self.assertEqual(diagnostics["first_production_patch_seconds"], 42.5)
         self.assertTrue(diagnostics["blocked_edits"][0]["deferred"])
 
     def test_optional_test_artifact_diagnostics_do_not_mask_failures(self) -> None:
@@ -167,6 +170,30 @@ class SweBenchSmokeTests(unittest.TestCase):
         self.assertEqual(result.metadata["token_usage"]["total_tokens"], 120)
         self.assertEqual(model_patch, "diff --git")
         self.assertEqual(len(events), 3)
+
+    def test_single_agent_benchmark_disables_workflow_checkpoints(self) -> None:
+        instance = SWEInstance("owner__repo-1", "owner/repo", "abc", "fix bug")
+        captured = {}
+
+        def fake_stream(_task, **kwargs):
+            captured.update(kwargs)
+            yield {"type": "final_answer", "content": "done"}
+
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "evals.swebench.runner.prepare_repository"
+        ), patch("evals.swebench.runner.export_model_patch", return_value="diff"), patch.dict(
+            "evals.swebench.runner.STREAMS", {"single-agent": fake_stream}
+        ):
+            run_instance(
+                instance,
+                workspace=Path(directory) / "repo",
+                workflow_mode="single-agent",
+                max_attempts=1,
+                model_name="test-model",
+                events_path=Path(directory) / "events.jsonl",
+            )
+
+        self.assertEqual(captured["checkpoint_mode"], "off")
 
 
 if __name__ == "__main__":

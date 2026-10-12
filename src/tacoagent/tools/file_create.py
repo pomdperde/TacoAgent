@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from tacoagent.core.workspace import WorkspaceSandbox
+from tacoagent.core.file_journal import FileJournal
 
 
 @dataclass(slots=True)
@@ -25,16 +26,10 @@ class FileCreateTool:
         if path.exists():
             raise FileExistsError(f"File already exists: {file_path}")
 
-        path.parent.mkdir(parents=True, exist_ok=True)
-        # Resolve once more after creating parents, so a symlinked parent cannot
-        # redirect the actual write outside the workspace.
-        path = self.workspace.resolve(file_path)
-        if path.exists():
-            raise FileExistsError(f"File already exists: {file_path}")
-        with path.open("x", encoding="utf-8", newline="") as stream:
-            stream.write(content)
+        change_id = FileJournal(self.workspace).change(file_path, None, content.encode("utf-8"))
         return {
             "ok": True,
+            "change_id": change_id,
             "path": self.workspace.relative(path),
             "characters": len(content),
             "created": True,

@@ -32,6 +32,8 @@ def _run_and_render(
     workspace: Path,
     max_attempts: int,
     workflow_mode: WorkflowMode = WorkflowMode.SINGLE_AGENT,
+    user_id: str | None = None,
+    session_id: str | None = None,
 ) -> None:
     try:
         events = stream_session_events(
@@ -39,6 +41,7 @@ def _run_and_render(
             session_workspace=workspace,
             workflow_mode=workflow_mode.value,
             max_attempts=max_attempts,
+            **({"user_id": user_id, "session_id": session_id} if user_id is not None or session_id is not None else {}),
         )
         for event in events:
             event_type = event["type"]
@@ -94,6 +97,8 @@ def _run_and_render(
 @app.command()
 def run(
     task: Annotated[str, typer.Argument(help="Task for TacoAgent.")],
+    user: Annotated[str | None, typer.Option("--user")] = None,
+    session: Annotated[str | None, typer.Option("--session")] = None,
     workspace: Annotated[
         Path,
         typer.Option("--workspace", "-w", help="Workspace available to the agent."),
@@ -115,11 +120,13 @@ def run(
     ] = WorkflowMode.SINGLE_AGENT,
 ) -> None:
     """Run a task in multi-agent or single-agent mode."""
-    _run_and_render(task, workspace, max_attempts, workflow_mode)
+    _run_and_render(task, workspace, max_attempts, workflow_mode, user, session)
 
 
 @app.command()
 def chat(
+    user: Annotated[str | None, typer.Option("--user")] = None,
+    session: Annotated[str | None, typer.Option("--session")] = None,
     workspace: Annotated[
         Path,
         typer.Option("--workspace", "-w", help="Workspace available to the agent."),
@@ -148,13 +155,65 @@ def chat(
         if task.casefold() in {"/exit", "/quit", "exit", "quit"}:
             break
         if task:
-            _run_and_render(task, workspace, max_attempts, workflow_mode)
+            _run_and_render(task, workspace, max_attempts, workflow_mode, user, session)
+
+
+@app.command("session-new")
+def session_new(
+    user: Annotated[str, typer.Option("--user")],
+    workspace: Annotated[Path, typer.Option("--workspace", "-w")] = Path("workspace"),
+) -> None:
+    """Create an isolated session copy for a local user identity."""
+    from tacoagent.core.session_space import SessionSpace
+    session_id, path = SessionSpace(workspace, user).create()
+    console.print(f"Session: {session_id}\nWorkspace: {path}")
+
+
+@app.command("session-list")
+def session_list(
+    user: Annotated[str, typer.Option("--user")],
+    workspace: Annotated[Path, typer.Option("--workspace", "-w")] = Path("workspace"),
+) -> None:
+    """List sessions belonging to this local user identity."""
+    from tacoagent.core.session_space import SessionSpace
+    for session_id in SessionSpace(workspace, user).list():
+        console.print(session_id)
 
 
 @app.command()
 def info() -> None:
     """Show project information."""
     console.print(f"[bold yellow]TacoAgent[/] {__version__}")
+
+
+@app.command()
+def rollback(
+    change_id: Annotated[str | None, typer.Argument(help="Change ID to undo; omit to list changes.")] = None,
+    workspace: Annotated[Path, typer.Option("--workspace", "-w")] = Path("workspace"),
+    user: Annotated[str | None, typer.Option("--user")] = None,
+    session: Annotated[str | None, typer.Option("--session")] = None,
+) -> None:
+    """List file changes or undo one change after checking its current version."""
+    from tacoagent.core.file_journal import FileJournal
+    from tacoagent.core.session_space import SessionSpace, workspace_lease
+
+    try:
+        if (user is None) != (session is None):
+            raise ValueError("--user and --session must be provided together")
+        target = SessionSpace(workspace, user).open(session) if user is not None else workspace.resolve()
+        with workspace_lease(target):
+            journal = FileJournal(target)
+            if change_id is None:
+                for record in journal.entries():
+                    console.print({key: record[key] for key in ("id", "path", "operation", "status")})
+            else:
+                result = journal.rollback(change_id)
+                console.print(Pretty(result))
+                if not result["ok"]:
+                    raise typer.Exit(code=1)
+    except (OSError, ValueError, RuntimeError) as exc:
+        console.print(f"Rollback failed: {exc}")
+        raise typer.Exit(code=1) from exc
 
 
 def main() -> None:

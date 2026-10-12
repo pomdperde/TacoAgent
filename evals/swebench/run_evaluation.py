@@ -59,6 +59,11 @@ def _local_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
     metadata = [item.get("metadata", {}) for item in results]
     usage = [item.get("token_usage", {}) for item in metadata]
     provider_wait = [float(item.get("provider_wait_seconds", 0) or 0) for item in metadata]
+    first_patch_times = [
+        float(item["first_production_patch_seconds"])
+        for item in metadata
+        if item.get("first_production_patch_seconds") is not None
+    ]
     return {
         "instances": len(results),
         "statuses": dict(
@@ -89,6 +94,11 @@ def _local_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
         "provider_wait_seconds_average": round(sum(provider_wait) / len(provider_wait), 3)
         if provider_wait
         else 0,
+        "first_production_patch_seconds": first_patch_times,
+        "first_production_patch_seconds_average": (
+            round(sum(first_patch_times) / len(first_patch_times), 3)
+            if first_patch_times else None
+        ),
         "token_usage": {
             key: sum(int(item.get(key, 0) or 0) for item in usage)
             for key in ("input_tokens", "output_tokens", "total_tokens")

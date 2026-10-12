@@ -16,8 +16,12 @@ from tacoagent.graph.final_node import final_node
 from tacoagent.graph.verifier_node import verifier_node, verifier_route
 from tacoagent.graph.single_agent_planner_node import single_agent_planner_node
 from tacoagent.graph.state import TacoGraphState
+from tacoagent.workflow.graph_failure import (
+    WorkflowExecutionError, handle_node_error, workflow_failure_node,
+)
 from tacoagent.core.trace import WorkflowEventRecorder
 from tacoagent.core.runtime import RuntimeState
+from tacoagent.core.checkpoint import CheckpointManager, merge_checkpoint_update
 from tacoagent.core.trace import trace_now
 from tacoagent.graph.entry_nodes import chat_responder_node, intent_route_fn, intent_router_node
 
@@ -104,6 +108,9 @@ def _observed_node(
 def build_workflow() -> CompiledStateGraph:
     """Build TacoAgent's default single-agent graph workflow."""
     graph = StateGraph(TacoGraphState)
+    graph.set_node_defaults(error_handler=handle_node_error)
+    graph.add_node("workflow_failure", workflow_failure_node, error_handler=None)
+    graph.add_edge("workflow_failure", END)
 
     graph.add_node("intent_router", _observed_node("intent_router", intent_router_node))
     graph.add_node("chat_responder", _observed_node("chat_responder", chat_responder_node))
@@ -163,6 +170,7 @@ def stream_workflow_events(
     require_production_patch: bool = False,
     planner_time_budget_seconds: int = 60,
     actor_time_budget_seconds: int = 300,
+    actor_provider_timeout_seconds: float = 60,
     actor_phase_time_budgets: dict[str, int] | None = None,
     actor_phase_token_budgets: dict[str, int] | None = None,
     verifier_time_budget_seconds: int = 120,
@@ -172,6 +180,7 @@ def stream_workflow_events(
     context_keep_recent_tokens: int = 20_000,
     memory_profile_mode: str = "node-trimmed",
     verification_docker_image: str = "",
+    checkpoint_mode: str = "light",
 ) -> Iterator[dict[str, Any]]:
     """Run the compiled graph and expose stable events for CLI consumers."""
     task = task.strip()
@@ -188,8 +197,9 @@ def stream_workflow_events(
     if memory_profile_mode not in {"node-trimmed", "legacy-uniform"}:
         raise ValueError("memory_profile_mode must be node-trimmed or legacy-uniform")
 
-    runtime = RuntimeState(workspace)
+    runtime = RuntimeState(workspace, checkpoint_mode=checkpoint_mode)
     recorder = WorkflowEventRecorder(runtime, task=task)
+    checkpoint = CheckpointManager(runtime, task=task)
     recorder.start("single-agent", task)
     inputs: TacoGraphState = {
         "task": task,
@@ -207,10 +217,12 @@ def stream_workflow_events(
         # the benchmark runner still owns the hard per-instance deadline.
         "planner_time_budget_seconds": planner_time_budget_seconds,
         "actor_time_budget_seconds": actor_time_budget_seconds,
+        "actor_provider_timeout_seconds": actor_provider_timeout_seconds,
         "actor_phase_time_budgets": actor_phase_time_budgets or {},
         "actor_phase_token_budgets": actor_phase_token_budgets or {},
         "actor_investigation_limit": 6,
         "actor_convergence_limit": 4,
+        "actor_no_progress_turn_limit": 2,
         "actor_finalize_reserve_seconds": max(15, min(60, actor_time_budget_seconds // 10)),
         "verifier_time_budget_seconds": verifier_time_budget_seconds,
         "run_deadline_monotonic": monotonic() + max(1, total_time_budget_seconds),
@@ -222,16 +234,40 @@ def stream_workflow_events(
         "memory_profile_mode": memory_profile_mode,
         "verification_docker_image": verification_docker_image,
     }
-    for mode, event in build_workflow().stream(
-        inputs, stream_mode=["updates", "custom"]
+    checkpoint_state: dict[str, Any] = dict(inputs)
+    for part in build_workflow().stream(
+        inputs, stream_mode=["updates", "custom"], version="v2"
     ):
+        mode, event = part["type"], part["data"]
         if mode == "custom":
             recorder.record("graph", event)
             yield event
             continue
         for node, update in event.items():
             payload = update if isinstance(update, dict) else {}
+            checkpoint_state = merge_checkpoint_update(checkpoint_state, payload)
             recorder.record_graph_update({node: payload})
+            checkpoint_status = (
+                "failed" if node == "workflow_failure"
+                else "completed" if node in {"chat_responder", "final"}
+                else "running"
+            )
+            checkpoint_event = checkpoint.save(
+                checkpoint_state,
+                status=checkpoint_status,
+                latest_node=node,
+                event={"type": "graph_update", "node": node, "update": payload},
+                snapshot_workspace=checkpoint_status != "running",
+            )
+            if checkpoint_event is not None:
+                recorder.record("graph", checkpoint_event)
+                yield checkpoint_event
+            if node == "workflow_failure":
+                failure = {"type": "workflow_error", **payload["workflow_error"]}
+                recorder.record("graph", failure)
+                recorder.end(status="failed", result=payload)
+                yield failure
+                raise WorkflowExecutionError(payload["final_answer"])
             if node == "intent_router":
                 output = {"type": "intent_route", **payload}
             elif node == "chat_responder":

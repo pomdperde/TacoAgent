@@ -11,6 +11,7 @@ from langchain_core.messages import HumanMessage
 from tacoagent.core.checkpoint import (
     CheckpointManager,
     build_recovery_markdown,
+    merge_checkpoint_update,
     normalize_checkpoint_mode,
     resume_command,
 )
@@ -18,6 +19,19 @@ from tacoagent.core.runtime import RuntimeState
 
 
 class CheckpointTests(unittest.TestCase):
+    def test_merges_streamed_messages_with_langgraph_reducer(self) -> None:
+        first = HumanMessage(content="first", id="message-1")
+        replacement = HumanMessage(content="updated", id="message-1")
+        second = HumanMessage(content="second", id="message-2")
+
+        merged = merge_checkpoint_update(
+            {"messages": [first], "attempts": 0},
+            {"messages": [replacement, second], "attempts": 1},
+        )
+
+        self.assertEqual([message.content for message in merged["messages"]], ["updated", "second"])
+        self.assertEqual(merged["attempts"], 1)
+
     def test_normalizes_checkpoint_modes(self) -> None:
         self.assertEqual(normalize_checkpoint_mode(None), "light")
         self.assertEqual(normalize_checkpoint_mode("STRICT"), "strict")
@@ -97,6 +111,20 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(inputs["messages"][0].content, "continue")
             self.assertIs(inputs["runtime"], runtime)
             self.assertTrue(event["workspace_restored"])
+
+    def test_state_only_checkpoint_skips_workspace_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            manager = CheckpointManager(RuntimeState(directory))
+            with patch("tacoagent.core.checkpoint.workspace_manifest") as manifest, patch(
+                "tacoagent.core.checkpoint.snapshot_workspace_git"
+            ) as snapshot:
+                event = manager.save(
+                    {"task": "running"}, latest_node="planner", snapshot_workspace=False
+                )
+
+            manifest.assert_not_called()
+            snapshot.assert_not_called()
+            self.assertEqual(event["latest_node"], "planner")
 
     def test_recovery_helpers_include_resume_information(self) -> None:
         workspace = Path("some workspace")

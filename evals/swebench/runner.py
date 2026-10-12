@@ -106,6 +106,12 @@ def _event_diagnostics(events: list[dict[str, Any]]) -> dict[str, Any]:
             for event in events
             if event.get("type") == "provider_wait"
         ), 3),
+        "first_production_patch_seconds": next((
+            float(event.get("elapsed_seconds_since_instance_start", 0) or 0)
+            for event in events
+            if event.get("type") == "patch_status"
+            and event.get("production_files_changed")
+        ), None),
     }
 
 
@@ -141,6 +147,7 @@ def run_instance(
     policy_block_count = policy_reprompt_count = 0
     blocked_edits: list[dict[str, Any]] = []
     provider_wait_seconds = 0.0
+    first_production_patch_seconds: float | None = None
     error = ""
     patch = ""
     try:
@@ -150,6 +157,9 @@ def run_instance(
             "force_workflow": True,
         }
         if workflow_mode == "single-agent":
+            # Benchmark workspaces and event logs are already durable. Avoid a
+            # second full-repository Git index on every terminal graph state.
+            kwargs["checkpoint_mode"] = "off"
             kwargs["require_production_patch"] = True
             kwargs["planner_time_budget_seconds"] = planner_time_budget
             kwargs["actor_time_budget_seconds"] = actor_time_budget
@@ -164,6 +174,9 @@ def run_instance(
         else:
             kwargs["max_attempts"] = max_attempts
         for event in selected(build_task(instance), **kwargs):
+            event["elapsed_seconds_since_instance_start"] = round(
+                perf_counter() - started, 3
+            )
             event_count += 1
             if event.get("type") == "tool_call":
                 tool_calls += 1
@@ -188,6 +201,14 @@ def run_instance(
                 policy_reprompt_count += 1
             elif event.get("type") == "provider_wait":
                 provider_wait_seconds += float(event.get("seconds", 0) or 0)
+            elif (
+                event.get("type") == "patch_status"
+                and event.get("production_files_changed")
+                and first_production_patch_seconds is None
+            ):
+                first_production_patch_seconds = float(
+                    event["elapsed_seconds_since_instance_start"]
+                )
             _append_jsonl(events_path, event)
         patch = export_model_patch(workspace, production_only=True)
         status = "completed" if patch.strip() else "no_patch"
@@ -219,6 +240,7 @@ def run_instance(
             "policy_reprompt_count": policy_reprompt_count,
             "blocked_edits": blocked_edits,
             "provider_wait_seconds": round(provider_wait_seconds, 3),
+            "first_production_patch_seconds": first_production_patch_seconds,
             "excluded_test_artifacts": (
                 _safe_changed_test_artifacts(workspace)
                 if (workspace / ".git").exists()

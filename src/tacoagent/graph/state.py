@@ -77,6 +77,7 @@ class TacoGraphState(TypedDict, total=False):
     verification_checks: list[dict[str, object]]
     verification_status: str
     last_error: str
+    workflow_error: dict[str, str]
     react_token_usage: dict[str, int]
     react_max_loops: int
     research_notes: str
@@ -110,6 +111,7 @@ class TacoGraphState(TypedDict, total=False):
     disable_web_search: bool
     patch_status: dict[str, Any]
     actor_time_budget_seconds: int
+    actor_provider_timeout_seconds: float
     actor_phase_time_budgets: dict[str, int]
     actor_phase_token_budgets: dict[str, int]
     actor_phase_usage: dict[str, dict[str, int]]
@@ -121,4 +123,5 @@ class TacoGraphState(TypedDict, total=False):
     verifier_reserve_seconds: int
     actor_finalize_reserve_seconds: int
     actor_convergence_limit: int
+    actor_no_progress_turn_limit: int
     verification_feedback: dict[str, Any]

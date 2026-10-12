@@ -121,13 +121,21 @@ def _fallback_plan(task: str, *, reason: str) -> dict[str, Any]:
 
 def single_agent_planner_node(state: TacoGraphState) -> dict[str, Any]:
     _tool, planner_input = prepare_planner(state, node="single_agent_planner")
-    hard_budget = max(1.0, float(state.get("planner_time_budget_seconds", 30)))
-    provider_timeout = _provider_timeout(hard_budget)
+    preferred_budget = max(1.0, float(state.get("planner_time_budget_seconds", 30)))
+    run_deadline = float(state.get("run_deadline_monotonic", 0) or 0)
+    instance_remaining = max(1.0, run_deadline - monotonic()) if run_deadline else preferred_budget
+    # Planner's configured budget is a soft allocation used for the single
+    # provider request. The subprocess is only terminated at the shared
+    # instance deadline, so unused Planner time is automatically available to
+    # Actor and Verifier.
+    soft_budget = min(preferred_budget, max(1.0, instance_remaining * 0.25))
+    provider_timeout = _provider_timeout(soft_budget)
     writer = stream_writer()
     writer({
         "type": "planner_budget_start",
         "node": "single_agent_planner",
-        "hard_budget_seconds": hard_budget,
+        "soft_budget_seconds": round(soft_budget, 3),
+        "instance_remaining_seconds": round(instance_remaining, 3),
         "provider_timeout_seconds": provider_timeout,
         "provider_max_retries": 0,
     })
@@ -135,7 +143,7 @@ def single_agent_planner_node(state: TacoGraphState) -> dict[str, Any]:
     status, payload = _run_with_hard_deadline(
         _planner_model_worker,
         (planner_input, provider_timeout),
-        hard_budget,
+        instance_remaining,
     )
     elapsed = round(monotonic() - started, 3)
     writer({

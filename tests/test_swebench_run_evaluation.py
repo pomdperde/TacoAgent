@@ -31,6 +31,7 @@ class SweBenchRunEvaluationTests(unittest.TestCase):
                                 "policy_reprompt_count": 1,
                                 "blocked_edits": [{"tool": "file_edit"}],
                                 "provider_wait_seconds": 7.25,
+                                "first_production_patch_seconds": 4.5,
                             },
                         }
                     )
@@ -79,6 +80,8 @@ class SweBenchRunEvaluationTests(unittest.TestCase):
         self.assertEqual(saved["metrics"]["blocked_edit_count"], 1)
         self.assertEqual(saved["metrics"]["blocked_edits"][0]["instance_id"], "owner__repo-1")
         self.assertEqual(saved["metrics"]["provider_wait_seconds_total"], 7.25)
+        self.assertEqual(saved["metrics"]["first_production_patch_seconds"], [4.5])
+        self.assertEqual(saved["metrics"]["first_production_patch_seconds_average"], 4.5)
         self.assertEqual(saved["langsmith"]["dataset_id"], "dataset-id")
         self.assertFalse(saved["official_harness"]["requested"])
         self.assertEqual(saved["prediction_summaries"][0]["patch_chars"], 4)

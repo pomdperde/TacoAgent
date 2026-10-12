@@ -11,6 +11,7 @@ from tacoagent.core.approval import ApprovalDecision, ApprovalRequest
 
 from .command_run import CommandRunTool
 from .file_create import FileCreateTool
+from .file_delete import FileDeleteTool
 from .file_edit import FileEditTool
 from .file_read import FileReadTool
 from .memory_get import MemoryGetTool
@@ -31,6 +32,10 @@ class FileReadInput(BaseModel):
 class FileCreateInput(BaseModel):
     file_path: str = Field(description="Workspace-relative path for the new file")
     content: str = Field(default="", description="UTF-8 text content")
+
+
+class FileDeleteInput(BaseModel):
+    file_path: str = Field(description="Workspace-relative file to delete (not a directory)")
 
 
 class FileEditInput(BaseModel):
@@ -73,6 +78,7 @@ def _default_registry(
             ListWorkspaceFilesTool(sandbox),
             FileReadTool(sandbox),
             FileCreateTool(sandbox),
+            FileDeleteTool(sandbox),
             FileEditTool(sandbox),
             RegexSearchTool(sandbox),
             CommandRunTool(
@@ -169,7 +175,11 @@ def build_structured_tools(
             "memory_get", task_name=task_name, memory_id=memory_id
         )
 
+    def file_delete(file_path: str):
+        return tool_registry.invoke("file_delete", task_name=task_name, file_path=file_path)
+
     specifications = [
+        (file_delete, "file_delete", "Delete one workspace file with a durable undo record.", FileDeleteInput),
         (list_workspace_files, "list_workspace_files", "List files in the current TacoAgent workspace.", ListFilesInput),
         (file_read, "file_read", "Read a UTF-8 text file inside the TacoAgent workspace.", FileReadInput),
         (file_create, "file_create", "Create a new text file inside the TacoAgent workspace.", FileCreateInput),

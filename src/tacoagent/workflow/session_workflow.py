@@ -20,6 +20,22 @@ def run_session_event_stream(
     stream: EventStream,
     stream_kwargs: dict[str, Any] | None = None,
 ) -> Iterator[dict[str, Any]]:
+    from tacoagent.core.session_space import workspace_lease
+
+    workspace = Path(session_workspace or "workspace").expanduser().resolve()
+    with workspace_lease(workspace):
+        yield from _run_session_event_stream(
+            task, session_workspace=workspace, stream=stream, stream_kwargs=stream_kwargs,
+        )
+
+
+def _run_session_event_stream(
+    task: str,
+    *,
+    session_workspace: str | Path | None,
+    stream: EventStream,
+    stream_kwargs: dict[str, Any] | None = None,
+) -> Iterator[dict[str, Any]]:
     """Persist one conversation turn around an existing workflow event stream."""
     workspace = Path(session_workspace or "workspace").expanduser().resolve()
     manager = SessionManager(workspace)
@@ -125,8 +141,15 @@ def stream_session_events(
     session_workspace: str | Path | None = None,
     workflow_mode: str = "single-agent",
     max_attempts: int = 3,
+    user_id: str | None = None,
+    session_id: str | None = None,
 ) -> Iterator[dict[str, Any]]:
     """Dispatch a persistent turn to any of TacoAgent's workflow modes."""
+    if (user_id is None) != (session_id is None):
+        raise ValueError("user_id and session_id must be supplied together")
+    if user_id is not None:
+        from tacoagent.core.session_space import SessionSpace
+        session_workspace = SessionSpace(session_workspace or "workspace", user_id).open(session_id)
     mode = str(workflow_mode).strip().lower()
     if mode == "multi-agent":
         from tacoagent.workflow.multi_agent_workflow import stream_multi_agent_workflow_events

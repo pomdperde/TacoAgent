@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from tacoagent.core.workspace import WorkspaceSandbox
+from tacoagent.core.file_journal import FileJournal, version
 
 
 class NonUniqueTextError(ValueError):
@@ -100,8 +101,9 @@ class FileEditTool:
             raise FileNotFoundError(f"File does not exist: {file_path}")
         if not path.is_file():
             raise IsADirectoryError(f"Path is not a file: {file_path}")
-        with path.open("r", encoding="utf-8", newline="") as stream:
-            raw_content = stream.read()
+        journal = FileJournal(self.workspace)
+        raw_bytes, read_version = version(journal.path(file_path))
+        raw_content = raw_bytes.decode("utf-8")
         newline = "\r\n" if "\r\n" in raw_content else "\n"
         content = raw_content.replace("\r\n", "\n")
         old_text = old_text.replace("\r\n", "\n")
@@ -155,7 +157,7 @@ class FileEditTool:
 
         path = self.workspace.resolve(file_path)
         serialized = updated.replace("\n", "\r\n") if newline == "\r\n" else updated
-        with path.open("w", encoding="utf-8", newline="") as stream:
-            stream.write(serialized)
-        return {"ok": True, "path": self.workspace.relative(path), "mode": mode,
+        change_id = journal.change(file_path, raw_bytes, serialized.encode("utf-8"),
+                                   expected_version=read_version)
+        return {"ok": True, "change_id": change_id, "path": self.workspace.relative(path), "mode": mode,
                 "replacements": 1, "characters_before": len(raw_content), "characters_after": len(serialized)}

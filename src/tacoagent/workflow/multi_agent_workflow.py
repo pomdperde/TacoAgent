@@ -8,6 +8,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
 from tacoagent.core.runtime import RuntimeState
+from tacoagent.core.checkpoint import CheckpointManager, merge_checkpoint_update
 from tacoagent.core.trace import WorkflowEventRecorder
 from tacoagent.workflow.single_agent_workflow import _observed_node
 from tacoagent.graph.context_compressor_node import context_compressor_node, context_compressor_route
@@ -16,11 +17,17 @@ from tacoagent.graph.final_node import final_node
 from tacoagent.graph.verifier_node import verifier_node, verifier_route
 from tacoagent.graph.multi_agent_supervisor_node import multi_agent_supervisor_node
 from tacoagent.graph.state import TacoGraphState
+from tacoagent.workflow.graph_failure import (
+    WorkflowExecutionError, handle_node_error, workflow_failure_node,
+)
 from tacoagent.graph.entry_nodes import chat_responder_node, intent_route_fn, intent_router_node
 
 
 def build_multi_agent_workflow() -> CompiledStateGraph:
     graph = StateGraph(TacoGraphState)
+    graph.set_node_defaults(error_handler=handle_node_error)
+    graph.add_node("workflow_failure", workflow_failure_node, error_handler=None)
+    graph.add_edge("workflow_failure", END)
     graph.add_node("intent_router", _observed_node("intent_router", intent_router_node))
     graph.add_node("chat_responder", _observed_node("chat_responder", chat_responder_node))
     graph.add_node(
@@ -81,6 +88,7 @@ def stream_multi_agent_workflow_events(
         raise ValueError("max_attempts must be greater than zero")
     runtime = RuntimeState(workspace)
     recorder = WorkflowEventRecorder(runtime, task=task)
+    checkpoint = CheckpointManager(runtime, task=task)
     recorder.start("multi-agent", task)
     inputs: TacoGraphState = {
         "task": task,
@@ -96,16 +104,40 @@ def stream_multi_agent_workflow_events(
         "disable_web_search": disable_web_search,
         "actor_convergence_limit": 4,
     }
-    for mode, event in build_multi_agent_workflow().stream(
-        inputs, stream_mode=["updates", "custom"]
+    checkpoint_state: dict[str, Any] = dict(inputs)
+    for part in build_multi_agent_workflow().stream(
+        inputs, stream_mode=["updates", "custom"], version="v2"
     ):
+        mode, event = part["type"], part["data"]
         if mode == "custom":
             recorder.record("multi-agent", event)
             yield event
             continue
         for node, update in event.items():
             payload = update if isinstance(update, dict) else {}
+            checkpoint_state = merge_checkpoint_update(checkpoint_state, payload)
             recorder.record_graph_update({node: payload})
+            checkpoint_status = (
+                "failed" if node == "workflow_failure"
+                else "completed" if node in {"chat_responder", "final"}
+                else "running"
+            )
+            checkpoint_event = checkpoint.save(
+                checkpoint_state,
+                status=checkpoint_status,
+                latest_node=node,
+                event={"type": "graph_update", "node": node, "update": payload},
+                snapshot_workspace=checkpoint_status != "running",
+            )
+            if checkpoint_event is not None:
+                recorder.record("multi-agent", checkpoint_event)
+                yield checkpoint_event
+            if node == "workflow_failure":
+                failure = {"type": "workflow_error", **payload["workflow_error"]}
+                recorder.record("multi-agent", failure)
+                recorder.end(status="failed", result=payload)
+                yield failure
+                raise WorkflowExecutionError(payload["final_answer"])
             if node == "intent_router":
                 output = {"type": "intent_route", **payload}
             elif node == "chat_responder":

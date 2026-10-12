@@ -144,6 +144,11 @@ class GraphWorkflowTests(unittest.TestCase):
             )
             trace_root = next((Path(directory) / ".tacoagent" / "traces").glob("trace-*"))
             log_text = (trace_root / "events.jsonl").read_text(encoding="utf-8")
+            checkpoint = json.loads(
+                (Path(directory) / ".tacoagent" / "checkpoints" / "checkpoint.json").read_text(
+                    encoding="utf-8"
+                )
+            )
             self.assertFalse(
                 (Path(directory) / ".tacoagent" / "workflow_events.jsonl").exists()
             )
@@ -154,6 +159,15 @@ class GraphWorkflowTests(unittest.TestCase):
             starts, ["intent_router", "single_agent_planner", "context_monitor", "actor", "verifier", "final"]
         )
         self.assertEqual(outputs, starts)
+        checkpoint_events = [event for event in events if event["type"] == "checkpoint_saved"]
+        self.assertEqual(
+            [event["latest_node"] for event in checkpoint_events],
+            starts,
+        )
+        self.assertEqual(checkpoint["status"], "completed")
+        self.assertEqual(checkpoint["latest_node"], "final")
+        self.assertEqual(checkpoint["resume_state"]["attempts"], 1)
+        self.assertTrue(checkpoint["resume_state"]["passed"])
         records = [json.loads(line) for line in log_text.splitlines()]
         self.assertEqual(records[0]["workflow"], "single-agent")
         node_records = [record for record in records if record.get("type") == "node_output"]

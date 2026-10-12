@@ -8,6 +8,7 @@ from .audit import ToolExecutionLogger
 from .base import Tool
 from .command_run import CommandRunTool
 from .file_create import FileCreateTool
+from .file_delete import FileDeleteTool
 from .file_edit import FileEditTool, NonUniqueTextError
 from .file_read import FileReadTool
 from .memory_get import MemoryGetTool
@@ -20,6 +21,7 @@ from .web_search_tool import WebSearchTool
 __all__ = [
     "ListWorkspaceFilesTool",
     "FileCreateTool",
+    "FileDeleteTool",
     "CommandRunTool",
     "FileEditTool",
     "FileReadTool",

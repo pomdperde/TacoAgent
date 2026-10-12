@@ -105,12 +105,14 @@ class ReactAgentTests(unittest.TestCase):
             [
                 "node_start",
                 "node_output",
+                "checkpoint_saved",
                 "intent_route",
                 "memory_snapshot",
                 "node_start",
                 "tool_call",
                 "tool_result",
                 "node_output",
+                "checkpoint_saved",
                 "final_answer",
             ],
         )

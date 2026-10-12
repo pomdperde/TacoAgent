@@ -9,6 +9,7 @@ from langgraph.graph.state import CompiledStateGraph
 
 from tacoagent.core.react import stream_agent_events
 from tacoagent.core.runtime import RuntimeState
+from tacoagent.core.checkpoint import CheckpointManager, merge_checkpoint_update
 from tacoagent.core.trace import trace_now
 from tacoagent.core.trace import WorkflowEventRecorder
 from tacoagent.memory import build_layered_memory, format_layered_memory_for_prompt, memory_event
@@ -96,6 +97,7 @@ def stream_react_workflow_events(
         raise ValueError("max_loops must be greater than zero")
     runtime = RuntimeState(workspace)
     recorder = WorkflowEventRecorder(runtime, task=task)
+    checkpoint = CheckpointManager(runtime, task=task)
     recorder.start("react", task)
     inputs: TacoGraphState = {
         "task": task,
@@ -106,6 +108,7 @@ def stream_react_workflow_events(
         "session_turn": session_turn,
         "force_workflow": force_workflow,
     }
+    checkpoint_state: dict[str, Any] = dict(inputs)
     for mode, event in build_react_workflow().stream(inputs, stream_mode=["updates", "custom"]):
         if mode == "custom":
             recorder.record("react", event)
@@ -115,7 +118,21 @@ def stream_react_workflow_events(
             continue
         for node, raw_update in event.items():
             update = raw_update if isinstance(raw_update, dict) else {}
+            checkpoint_state = merge_checkpoint_update(checkpoint_state, update)
             recorder.record_graph_update({node: update})
+            checkpoint_status = (
+                "completed" if node in {"chat_responder", "react"} else "running"
+            )
+            checkpoint_event = checkpoint.save(
+                checkpoint_state,
+                status=checkpoint_status,
+                latest_node=node,
+                event={"type": "graph_update", "node": node, "update": update},
+                snapshot_workspace=checkpoint_status != "running",
+            )
+            if checkpoint_event is not None:
+                recorder.record("react", checkpoint_event)
+                yield checkpoint_event
             if node == "intent_router":
                 output = {"type": "intent_route", **update}
             elif node in {"chat_responder", "react"}:

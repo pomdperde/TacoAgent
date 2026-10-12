@@ -21,6 +21,7 @@ class StructuredToolFactoryTests(unittest.TestCase):
                     "list_workspace_files",
                     "file_read",
                     "file_create",
+                    "file_delete",
                     "file_edit",
                     "regex_search",
                     "command_run",
